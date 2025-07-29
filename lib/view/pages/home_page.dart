@@ -144,198 +144,13 @@ class Home extends StatelessWidget {
                 hoverColor: Colors.transparent,
                 onPressed: () {
                   if (mq.width > 900) {
-                    // Show dialog popup for web
                     showDialog(
                       context: context,
                       builder: (context) {
-                        return Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Container(
-                            width: 500,
-                            height: mq.height * 0.8,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 24,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        "Search Client",
-                                        style: TextStyle(
-                                          color: Colors.black87,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 20,
-                                          letterSpacing: 0.2,
-                                        ),
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.close),
-                                      onPressed: () => Navigator.pop(context),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Material(
-                                  elevation: 1,
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: TextField(
-                                    controller: searchController,
-                                    keyboardType: TextInputType.text,
-                                    decoration: InputDecoration(
-                                      prefixIcon: Icon(
-                                        Icons.search,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                      hintText: "Type client name or number...",
-                                      hintStyle: TextStyle(
-                                        color: Colors.grey.shade500,
-                                        fontSize: 14,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.grey.shade100,
-                                      contentPadding: EdgeInsets.symmetric(
-                                        vertical: 0,
-                                        horizontal: 0,
-                                      ),
-                                    ),
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                ),
-                                SizedBox(height: 26),
-                                Text(
-                                  "Clients",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                    color: Colors.black.withOpacity(.7),
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                StreamBuilder(
-                                  stream: firebaseFirestore
-                                      .doc(auth.currentUser!.uid)
-                                      .collection('ClientCollection')
-                                      .snapshots(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    } else if (snapshot == null) {
-                                      return Center(
-                                        child: Text('No Data Found'),
-                                      );
-                                    } else if (snapshot.hasError) {
-                                      return Center(
-                                        child: Text(
-                                          '❌ Error: ${snapshot.error}',
-                                        ),
-                                      );
-                                    }
-                                    var clients = snapshot.data!.docs;
-                                    return Expanded(
-                                      child: ListView.builder(
-                                        itemCount: clients.length,
-                                        itemBuilder: (context, index) {
-                                          var client = clients[index];
-                                          final joined = formatDateForList(
-                                            client['startDate'],
-                                          );
-                                          final end = formatDateForList(
-                                            client['endDate'],
-                                          );
-                                          final remain = getRemainingDays(
-                                            client['endDate'],
-                                          );
-                                          return Container(
-                                            margin: const EdgeInsets.only(
-                                              bottom: 12,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey.shade50,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              border: Border.all(
-                                                color: Colors.grey.shade200,
-                                              ),
-                                            ),
-                                            child: ListTile(
-                                              leading: CircleAvatar(
-                                                backgroundColor:
-                                                    Colors.purple.shade100,
-                                                child: Icon(
-                                                  Icons.person,
-                                                  color: Colors.purple.shade700,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                client['name'],
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 15,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                              subtitle: Padding(
-                                                padding: const EdgeInsets.only(
-                                                  top: 2.0,
-                                                ),
-                                                child: Text(
-                                                  'Remain: $remain days\nJoined: $joined | End: $end',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey.shade700,
-                                                    height: 1.3,
-                                                  ),
-                                                ),
-                                              ),
-                                              trailing: Icon(
-                                                Icons.chevron_right,
-                                                color: Colors.grey.shade400,
-                                              ),
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 6,
-                                                  ),
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (_) =>
-                                                        FetchedClients(
-                                                          userCred: client,
-                                                        ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
+                        return _SearchClientDialog();
                       },
                     );
                   } else {
-                    // Show modal bottom sheet for mobile/tablet
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
@@ -345,189 +160,7 @@ class Home extends StatelessWidget {
                         ),
                       ),
                       builder: (context) {
-                        return Padding(
-                          padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).viewInsets.bottom,
-                          ),
-                          child: Container(
-                            height: mq.height * 0.85,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 18,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        "Search Client",
-                                        style: TextStyle(
-                                          color: Colors.black87,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
-                                          letterSpacing: 0.2,
-                                        ),
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.close),
-                                      onPressed: () => Navigator.pop(context),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Material(
-                                  elevation: 1,
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: TextField(
-                                    controller: searchController,
-                                    keyboardType: TextInputType.text,
-                                    decoration: InputDecoration(
-                                      prefixIcon: Icon(
-                                        Icons.search,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                      hintText: "Type client name or number...",
-                                      hintStyle: TextStyle(
-                                        color: Colors.grey.shade500,
-                                        fontSize: 14,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.grey.shade100,
-                                      contentPadding: EdgeInsets.symmetric(
-                                        vertical: 0,
-                                        horizontal: 0,
-                                      ),
-                                    ),
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                ),
-                                SizedBox(height: 26),
-                                Text(
-                                  "Clients",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                    color: Colors.black.withOpacity(.7),
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                StreamBuilder(
-                                  stream: firebaseFirestore
-                                      .doc(auth.currentUser!.uid)
-                                      .collection('ClientCollection')
-                                      .snapshots(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    } else if (snapshot == null) {
-                                      return Center(
-                                        child: Text('No Data Found'),
-                                      );
-                                    } else if (snapshot.hasError) {
-                                      return Center(
-                                        child: Text(
-                                          '❌ Error: ${snapshot.error}',
-                                        ),
-                                      );
-                                    }
-                                    var clients = snapshot.data!.docs;
-                                    return Expanded(
-                                      child: ListView.builder(
-                                        itemCount: clients.length,
-                                        itemBuilder: (context, index) {
-                                          var client = clients[index];
-                                          final joined = formatDateForList(
-                                            client['startDate'],
-                                          );
-                                          final end = formatDateForList(
-                                            client['endDate'],
-                                          );
-                                          final remain = getRemainingDays(
-                                            client['endDate'],
-                                          );
-                                          return Container(
-                                            margin: const EdgeInsets.only(
-                                              bottom: 12,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey.shade50,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              border: Border.all(
-                                                color: Colors.grey.shade200,
-                                              ),
-                                            ),
-                                            child: ListTile(
-                                              leading: CircleAvatar(
-                                                backgroundColor:
-                                                    Colors.purple.shade100,
-                                                child: Icon(
-                                                  Icons.person,
-                                                  color: Colors.purple.shade700,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                client['name'],
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 15,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                              subtitle: Padding(
-                                                padding: const EdgeInsets.only(
-                                                  top: 2.0,
-                                                ),
-                                                child: Text(
-                                                  'Remain: $remain days\nJoined: $joined | End: $end',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey.shade700,
-                                                    height: 1.3,
-                                                  ),
-                                                ),
-                                              ),
-                                              trailing: Icon(
-                                                Icons.chevron_right,
-                                                color: Colors.grey.shade400,
-                                              ),
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 6,
-                                                  ),
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (_) =>
-                                                        FetchedClients(
-                                                          userCred: client,
-                                                        ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
+                        return _SearchClientBottomSheet();
                       },
                     );
                   }
@@ -1181,6 +814,733 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SearchClientDialog extends StatefulWidget {
+  @override
+  State<_SearchClientDialog> createState() => _SearchClientDialogState();
+}
+
+class _SearchClientDialogState extends State<_SearchClientDialog> {
+  final searchController = TextEditingController();
+  dynamic selectedClient;
+
+  String formatDateForList(String date) {
+    try {
+      if (date.contains('-')) {
+        final d = DateTime.parse(date);
+        return DateFormat('dd MMM yyyy').format(d);
+      } else if (date.contains('/')) {
+        final parts = date.split('/');
+        if (parts.length == 3) {
+          final d = DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+          return DateFormat('dd MMM yyyy').format(d);
+        }
+      }
+    } catch (_) {}
+    return date;
+  }
+
+  int getRemainingDays(String endDate) {
+    try {
+      DateTime end;
+      if (endDate.contains('-')) {
+        end = DateTime.parse(endDate);
+      } else if (endDate.contains('/')) {
+        final parts = endDate.split('/');
+        end = DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      } else {
+        return 0;
+      }
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final endDay = DateTime(end.year, end.month, end.day);
+      final diff = endDay.difference(today).inDays;
+      return diff >= 0 ? diff : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context).size;
+    final auth = FirebaseAuth.instance;
+    final firebaseFirestore = FirebaseFirestore.instance.collection('Admin');
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      child: Container(
+        width: 500,
+        height: mq.height * 0.8,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: selectedClient == null
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Search Client",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 20,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Material(
+                    elevation: 1,
+                    borderRadius: BorderRadius.circular(12),
+                    child: TextField(
+                      controller: searchController,
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Colors.grey.shade600,
+                        ),
+                        hintText: "Type client name or number...",
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 14,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.shade100,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 0,
+                        ),
+                      ),
+                      style: TextStyle(fontSize: 15),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
+                  SizedBox(height: 26),
+                  Text(
+                    "Clients",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: Colors.black.withOpacity(.7),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Expanded(
+                    child: StreamBuilder(
+                      stream: firebaseFirestore
+                          .doc(auth.currentUser!.uid)
+                          .collection('ClientCollection')
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot == null || !snapshot.hasData) {
+                          return Center(child: Text('No Data Found'));
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('❌ Error: ${snapshot.error}'),
+                          );
+                        }
+                        var clients = snapshot.data!.docs;
+                        final query = searchController.text
+                            .trim()
+                            .toLowerCase();
+                        final filtered = query.isEmpty
+                            ? clients
+                            : clients.where((c) {
+                                final name = (c['name'] ?? '')
+                                    .toString()
+                                    .toLowerCase();
+                                final contact = (c['contact'] ?? '')
+                                    .toString()
+                                    .toLowerCase();
+                                return name.contains(query) ||
+                                    contact.contains(query);
+                              }).toList();
+                        if (filtered.isEmpty) {
+                          return Center(child: Text('No clients found.'));
+                        }
+                        return ListView.builder(
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
+                            var client = filtered[index];
+                            final joined = formatDateForList(
+                              client['startDate'],
+                            );
+                            final end = formatDateForList(client['endDate']);
+                            final remain = getRemainingDays(client['endDate']);
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade50,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.grey.shade200),
+                              ),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.purple.shade100,
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Colors.purple.shade700,
+                                  ),
+                                ),
+                                title: Text(
+                                  client['name'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                subtitle: Padding(
+                                  padding: const EdgeInsets.only(top: 2.0),
+                                  child: Text(
+                                    'Remain: $remain days\nJoined: $joined | End: $end',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade700,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  color: Colors.grey.shade400,
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                onTap: () {
+                                  setState(() {
+                                    selectedClient = client;
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              )
+            : Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(top: 8, bottom: 16),
+                      child: _FetchedClientDetailCard(
+                        client: selectedClient,
+                        onBack: () => setState(() => selectedClient = null),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+class _SearchClientBottomSheet extends StatefulWidget {
+  @override
+  State<_SearchClientBottomSheet> createState() =>
+      _SearchClientBottomSheetState();
+}
+
+class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
+  final searchController = TextEditingController();
+  dynamic selectedClient;
+
+  String formatDateForList(String date) {
+    try {
+      if (date.contains('-')) {
+        final d = DateTime.parse(date);
+        return DateFormat('dd MMM yyyy').format(d);
+      } else if (date.contains('/')) {
+        final parts = date.split('/');
+        if (parts.length == 3) {
+          final d = DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+          return DateFormat('dd MMM yyyy').format(d);
+        }
+      }
+    } catch (_) {}
+    return date;
+  }
+
+  int getRemainingDays(String endDate) {
+    try {
+      DateTime end;
+      if (endDate.contains('-')) {
+        end = DateTime.parse(endDate);
+      } else if (endDate.contains('/')) {
+        final parts = endDate.split('/');
+        end = DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      } else {
+        return 0;
+      }
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final endDay = DateTime(end.year, end.month, end.day);
+      final diff = endDay.difference(today).inDays;
+      return diff >= 0 ? diff : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context).size;
+    final auth = FirebaseAuth.instance;
+    final firebaseFirestore = FirebaseFirestore.instance.collection('Admin');
+
+    return SafeArea(
+      child: Container(
+        height: mq.height * 0.85,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        child: selectedClient == null
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Search Client",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Material(
+                    elevation: 1,
+                    borderRadius: BorderRadius.circular(12),
+                    child: TextField(
+                      controller: searchController,
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Colors.grey.shade600,
+                        ),
+                        hintText: "Type client name or number...",
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 14,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.shade100,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 0,
+                        ),
+                      ),
+                      style: TextStyle(fontSize: 15),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
+                  SizedBox(height: 26),
+                  Text(
+                    "Clients",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: Colors.black.withOpacity(.7),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Expanded(
+                    child: StreamBuilder(
+                      stream: firebaseFirestore
+                          .doc(auth.currentUser!.uid)
+                          .collection('ClientCollection')
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot == null || !snapshot.hasData) {
+                          return Center(child: Text('No Data Found'));
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('❌ Error: ${snapshot.error}'),
+                          );
+                        }
+                        var clients = snapshot.data!.docs;
+                        final query = searchController.text
+                            .trim()
+                            .toLowerCase();
+                        final filtered = query.isEmpty
+                            ? clients
+                            : clients.where((c) {
+                                final name = (c['name'] ?? '')
+                                    .toString()
+                                    .toLowerCase();
+                                final contact = (c['contact'] ?? '')
+                                    .toString()
+                                    .toLowerCase();
+                                return name.contains(query) ||
+                                    contact.contains(query);
+                              }).toList();
+                        if (filtered.isEmpty) {
+                          return Center(child: Text('No clients found.'));
+                        }
+                        return ListView.builder(
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
+                            var client = filtered[index];
+                            final joined = formatDateForList(
+                              client['startDate'],
+                            );
+                            final end = formatDateForList(client['endDate']);
+                            final remain = getRemainingDays(client['endDate']);
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade50,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.grey.shade200),
+                              ),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.purple.shade100,
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Colors.purple.shade700,
+                                  ),
+                                ),
+                                title: Text(
+                                  client['name'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                subtitle: Padding(
+                                  padding: const EdgeInsets.only(top: 2.0),
+                                  child: Text(
+                                    'Remain: $remain days\nJoined: $joined | End: $end',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade700,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  color: Colors.grey.shade400,
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                onTap: () {
+                                  setState(() {
+                                    selectedClient = client;
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              )
+            : Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(top: 8, bottom: 16),
+                      child: _FetchedClientDetailCard(
+                        client: selectedClient,
+                        onBack: () => setState(() => selectedClient = null),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+class _FetchedClientDetailCard extends StatelessWidget {
+  final dynamic client;
+  final VoidCallback onBack;
+  const _FetchedClientDetailCard({required this.client, required this.onBack});
+
+  String formatDate(String date) {
+    try {
+      if (date.contains('-')) {
+        final d = DateTime.parse(date);
+        return DateFormat('dd MMM yyyy').format(d);
+      } else if (date.contains('/')) {
+        final parts = date.split('/');
+        if (parts.length == 3) {
+          final d = DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+          return DateFormat('dd MMM yyyy').format(d);
+        }
+      }
+    } catch (_) {}
+    return date;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final joined = formatDate(client['startDate']);
+    final end = formatDate(client['endDate']);
+    final paymentDate = formatDate(client['paymentDate']);
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      child: Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Colors.purple[100],
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.purple[700],
+                    size: 32,
+                  ),
+                ),
+                SizedBox(width: 18),
+                Expanded(
+                  child: Text(
+                    client['name'] ?? '',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      color: Colors.purple[800],
+                      letterSpacing: 1.1,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 18),
+            Divider(thickness: 1.2, color: Colors.grey[200]),
+            SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.phone, color: Colors.purple[300], size: 20),
+                SizedBox(width: 10),
+                Text(
+                  "Contact: ",
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Expanded(
+                  child: Text(
+                    client['contact'] ?? '',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                // Icon(Icons.whatsapp, color: Colors.green[400], size: 20),
+                SizedBox(width: 10),
+                Text(
+                  "WhatsApp: ",
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Expanded(
+                  child: Text(
+                    client['whatsapp'] ?? '',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(Icons.calendar_today, color: Colors.blue[300], size: 18),
+                SizedBox(width: 10),
+                Text("Plan: ", style: TextStyle(fontWeight: FontWeight.w600)),
+                Expanded(
+                  child: Text(
+                    client['planType'] ?? '',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(Icons.date_range, color: Colors.orange[300], size: 18),
+                SizedBox(width: 10),
+                Text("Start: ", style: TextStyle(fontWeight: FontWeight.w600)),
+                Text(joined, style: TextStyle(fontWeight: FontWeight.w500)),
+                SizedBox(width: 16),
+                Text("End: ", style: TextStyle(fontWeight: FontWeight.w600)),
+                Text(end, style: TextStyle(fontWeight: FontWeight.w500)),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(Icons.attach_money, color: Colors.teal[400], size: 20),
+                SizedBox(width: 10),
+                Text("Total: ", style: TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  client['totalAmount'] ?? '',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                SizedBox(width: 12),
+                Text("Paid: ", style: TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  client['paidAmount'] ?? '',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                SizedBox(width: 12),
+                Text("Remain: ", style: TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  client['remainingAmount'] ?? '',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(Icons.payment, color: Colors.deepPurple[300], size: 20),
+                SizedBox(width: 10),
+                Text(
+                  "Payment Date: ",
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  paymentDate,
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(Icons.verified, color: Colors.blueGrey[400], size: 20),
+                SizedBox(width: 10),
+                Text("Status: ", style: TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  client['paymentStatus'] ?? '',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+            SizedBox(height: 24),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple[400],
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.1,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 6,
+                  shadowColor: Colors.purple.withOpacity(0.18),
+                ),
+                icon: Icon(Icons.arrow_back),
+                label: Text("Back"),
+                onPressed: onBack,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
