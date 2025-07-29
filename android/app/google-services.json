@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "903981267575",
+    "project_id": "fitness-fuel-20731",
+    "storage_bucket": "fitness-fuel-20731.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903981267575:android:5888f734644ec43650e472",
+        "android_client_info": {
+          "package_name": "com.example.fitnessfuel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVHCnwvfmPrAhc9SnbLZjwRntubaCyHTI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
