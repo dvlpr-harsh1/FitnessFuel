@@ -1,16 +1,59 @@
-# fitnessfuel
+# 🏋️‍♂️ FitnessFuel – Gym Client Management Web App
 
-A new Flutter project.
+FitnessFuel is a Flutter-based web application built to manage gym clients efficiently.  
+It allows gym owners to add client data, auto-generate PDF receipts, upload them to Firebase Storage, and share them directly via WhatsApp.
 
-## Getting Started
+🌐 **Live Site**: [https://dvlpr-harsh1.github.io/FitnessFuel](https://dvlpr-harsh1.github.io/FitnessFuel)
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 🚀 Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- ✅ Add new gym client details
+- ✅ Auto-generate PDF receipt using `pdf` package
+- ✅ Upload PDF to **Firebase Storage**
+- ✅ Send receipt link via **WhatsApp** to the client
+- ✅ Flutter web compatible (hosted on GitHub Pages)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 🛠️ Built With
+
+- [Flutter](https://flutter.dev/)
+- [Firebase Storage](https://firebase.google.com/docs/storage)
+- [Firestore Database](https://firebase.google.com/docs/firestore)
+- [url_launcher](https://pub.dev/packages/url_launcher)
+- [pdf](https://pub.dev/packages/pdf)
+- [printing](https://pub.dev/packages/printing)
+
+---
+
+## 📷 Screenshots (Coming Soon)
+
+<!-- Add screenshots here if needed later -->
+
+---
+
+## 💡 Future Improvements
+
+- Admin login and authentication
+- Dashboard for viewing all clients
+- PDF preview before sending
+- WhatsApp message tracking / delivery logs
+- Firestore analytics and monthly billing reports
+
+---
+
+## 🔗 Author
+
+**Harish Rajput**  
+[GitHub: dvlpr-harsh1](https://github.com/dvlpr-harsh1)  
+Instagram: [@haus.of.harsh](https://instagram.com/haus.of.harsh)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.  
+Feel free to use and improve it!
+
