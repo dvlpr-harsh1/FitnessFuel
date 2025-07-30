@@ -12,14 +12,56 @@ import 'package:fitnessfuel/widgets/anim_image.dart';
 import 'package:fitnessfuel/widgets/custom_button.dart';
 import 'package:fitnessfuel/widgets/custom_dropdown.dart';
 import 'package:fitnessfuel/widgets/custom_textfield.dart';
+import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+  bool showSearchPanel = false;
+  dynamic selectedClient;
+  late AnimationController _controller;
+  late Animation<double> _panelAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _panelAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void toggleSearchPanel() {
+    setState(() {
+      showSearchPanel = !showSearchPanel;
+      if (showSearchPanel) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+        selectedClient = null;
+      }
+    });
+  }
 
   String formatDateForList(String date) {
     try {
@@ -133,24 +175,41 @@ class Home extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            alignment: Alignment.center,
-            padding: mq.width > webScreenSize
-                ? EdgeInsets.symmetric(horizontal: mq.width * .02)
-                : EdgeInsets.only(left: mq.width * .05, right: mq.width * .05),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: IconButton(
-                hoverColor: Colors.transparent,
-                onPressed: () {
-                  if (mq.width > 900) {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return _SearchClientDialog();
-                      },
-                    );
-                  } else {
+          if (mq.width > webScreenSize)
+            Container(
+              alignment: Alignment.center,
+              padding: mq.width > webScreenSize
+                  ? EdgeInsets.symmetric(horizontal: mq.width * .02)
+                  : EdgeInsets.only(
+                      left: mq.width * .05,
+                      right: mq.width * .05,
+                    ),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: IconButton(
+                  hoverColor: Colors.transparent,
+                  onPressed: toggleSearchPanel,
+                  icon: Icon(
+                    showSearchPanel ? Icons.close : CupertinoIcons.search,
+                    size: mq.width > webScreenSize ? 30 : 28,
+                  ),
+                ),
+              ),
+            ),
+          if (mq.width <= webScreenSize)
+            Container(
+              alignment: Alignment.center,
+              padding: mq.width > webScreenSize
+                  ? EdgeInsets.symmetric(horizontal: mq.width * .02)
+                  : EdgeInsets.only(
+                      left: mq.width * .05,
+                      right: mq.width * .05,
+                    ),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: IconButton(
+                  hoverColor: Colors.transparent,
+                  onPressed: () {
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
@@ -163,15 +222,14 @@ class Home extends StatelessWidget {
                         return _SearchClientBottomSheet();
                       },
                     );
-                  }
-                },
-                icon: Icon(
-                  CupertinoIcons.search,
-                  size: mq.width > webScreenSize ? 30 : 28,
+                  },
+                  icon: Icon(
+                    CupertinoIcons.search,
+                    size: mq.width > webScreenSize ? 30 : 28,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
 
         /// Add bottom border
@@ -180,51 +238,78 @@ class Home extends StatelessWidget {
           child: Container(color: MyColor.borderColor, height: 2.0),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
-            vertical: 24,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 2,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ///Image
-                    Text(
-                      'FitnessFuel',
-                      style: GoogleFonts.poppins(
-                        color: MyColor.black.withOpacity(.6),
-                        fontSize: mq.width > webScreenSize ? 60 : 30,
-                        fontWeight: FontWeight.w800,
-                      ),
+      body: Stack(
+        children: [
+          // Main content (form etc.)
+          SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: 24,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Main form
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'FitnessFuel',
+                          style: GoogleFonts.poppins(
+                            color: MyColor.black.withOpacity(.6),
+                            fontSize: mq.width > webScreenSize ? 60 : 30,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        _GymClientFormFields(),
+                        SizedBox(height: 30),
+                        footer,
+                      ],
                     ),
-
-                    ///Textfields & all content.
-                    _GymClientFormFields(),
-
-                    SizedBox(height: 30),
-
-                    ///Footer
-                    footer,
-                  ],
+                  ),
+                  if (mq.width > webScreenSize) SizedBox(width: 48),
+                ],
+              ),
+            ),
+          ),
+          // Animated search panel for web (NO overlay blur, just panel)
+          if (kIsWeb)
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeInOut,
+              top: 0,
+              bottom: 0,
+              right: showSearchPanel ? 0 : -520,
+              width: 500,
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  color: Colors.transparent,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: _WebSearchClientPanel(
+                          onClose: () {
+                            toggleSearchPanel();
+                          },
+                          onClientTap: (client) {
+                            setState(() {
+                              selectedClient = client;
+                            });
+                          },
+                          selectedClient: selectedClient,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-
-              // Remove the side panel for web/tablet
-              // if (_homeProvider.searchBox && mq.width > 900)
-              //   Expanded(
-              //     flex: 1,
-              //     child: ...,
-              //   ),
-              // For mobile/tablet, show nothing here (handled by modal)
-            ],
-          ),
-        ),
+            ),
+          // Remove overlay blur and popup for client details!
+        ],
       ),
     );
   }
@@ -1605,6 +1690,334 @@ class _FetchedClientDetailCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _WebSearchClientPanel extends StatefulWidget {
+  final VoidCallback? onClose;
+  final Function(dynamic)? onClientTap;
+  final dynamic selectedClient;
+  const _WebSearchClientPanel({
+    this.onClose,
+    this.onClientTap,
+    this.selectedClient,
+  });
+
+  @override
+  State<_WebSearchClientPanel> createState() => _WebSearchClientPanelState();
+}
+
+class _WebSearchClientPanelState extends State<_WebSearchClientPanel> {
+  final searchController = TextEditingController();
+  dynamic selectedClient;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedClient = widget.selectedClient;
+  }
+
+  @override
+  void didUpdateWidget(covariant _WebSearchClientPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedClient != oldWidget.selectedClient) {
+      setState(() {
+        selectedClient = widget.selectedClient;
+      });
+    }
+  }
+
+  String formatDateForList(String date) {
+    try {
+      if (date.contains('-')) {
+        final d = DateTime.parse(date);
+        return DateFormat('dd MMM yyyy').format(d);
+      } else if (date.contains('/')) {
+        final parts = date.split('/');
+        if (parts.length == 3) {
+          final d = DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+          return DateFormat('dd MMM yyyy').format(d);
+        }
+      }
+    } catch (_) {}
+    return date;
+  }
+
+  int getRemainingDays(String endDate) {
+    try {
+      DateTime end;
+      if (endDate.contains('-')) {
+        end = DateTime.parse(endDate);
+      } else if (endDate.contains('/')) {
+        final parts = endDate.split('/');
+        end = DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      } else {
+        return 0;
+      }
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final endDay = DateTime(end.year, end.month, end.day);
+      final diff = endDay.difference(today).inDays;
+      return diff >= 0 ? diff : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context).size;
+    final auth = FirebaseAuth.instance;
+    final firebaseFirestore = FirebaseFirestore.instance.collection('Admin');
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double maxPanelWidth = constraints.maxWidth < 500
+            ? constraints.maxWidth
+            : 500;
+        return Card(
+          elevation: 2,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Container(
+            width: maxPanelWidth,
+            constraints: BoxConstraints(maxWidth: maxPanelWidth, minWidth: 320),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+            child: selectedClient == null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Search Client",
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 20,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: widget.onClose,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      Material(
+                        elevation: 1,
+                        borderRadius: BorderRadius.circular(12),
+                        child: TextField(
+                          controller: searchController,
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Colors.grey.shade600,
+                            ),
+                            hintText: "Type client name or number...",
+                            hintStyle: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 14,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade100,
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 0,
+                              horizontal: 0,
+                            ),
+                          ),
+                          style: TextStyle(fontSize: 15),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ),
+                      SizedBox(height: 18),
+                      Text(
+                        "Clients",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: Colors.black.withOpacity(.7),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      // Responsive height for list, avoid infinite size
+                      Expanded(
+                        child: StreamBuilder(
+                          stream: firebaseFirestore
+                              .doc(auth.currentUser!.uid)
+                              .collection('ClientCollection')
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else if (snapshot == null || !snapshot.hasData) {
+                              return Center(child: Text('No Data Found'));
+                            } else if (snapshot.hasError) {
+                              return Center(
+                                child: Text('❌ Error: ${snapshot.error}'),
+                              );
+                            }
+                            var clients = snapshot.hasData
+                                ? snapshot.data!.docs
+                                : [];
+                            final query = searchController.text
+                                .trim()
+                                .toLowerCase();
+                            final filtered = query.isEmpty
+                                ? clients
+                                : clients.where((c) {
+                                    final name = (c['name'] ?? '')
+                                        .toString()
+                                        .toLowerCase();
+                                    final contact = (c['contact'] ?? '')
+                                        .toString()
+                                        .toLowerCase();
+                                    return name.contains(query) ||
+                                        contact.contains(query);
+                                  }).toList();
+                            if (filtered.isEmpty) {
+                              return Center(child: Text('No clients found.'));
+                            }
+                            return ListView.builder(
+                              itemCount: filtered.length,
+                              itemBuilder: (context, index) {
+                                var client = filtered[index];
+                                final joined = formatDateForList(
+                                  client['startDate'],
+                                );
+                                final end = formatDateForList(
+                                  client['endDate'],
+                                );
+                                final remain = getRemainingDays(
+                                  client['endDate'],
+                                );
+                                return Container(
+                                  width: double.infinity,
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade50,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.grey.shade200,
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor: Colors.purple.shade100,
+                                      child: Icon(
+                                        Icons.person,
+                                        color: Colors.purple.shade700,
+                                      ),
+                                    ),
+                                    title: Text(
+                                      client['name'],
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    subtitle: Padding(
+                                      padding: const EdgeInsets.only(top: 2.0),
+                                      child: Text(
+                                        'Remain: $remain days\nJoined: $joined | End: $end',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade700,
+                                          height: 1.3,
+                                        ),
+                                      ),
+                                    ),
+                                    trailing: Icon(
+                                      Icons.chevron_right,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    onTap: () {
+                                      if (widget.onClientTap != null) {
+                                        widget.onClientTap!(client);
+                                      }
+                                    },
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Client Details",
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 20,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.arrow_back),
+                            onPressed: () {
+                              setState(() {
+                                selectedClient = null;
+                              });
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: widget.onClose,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: _FetchedClientDetailCard(
+                            client: selectedClient,
+                            onBack: () {
+                              setState(() {
+                                selectedClient = null;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        );
+      },
     );
   }
 }
