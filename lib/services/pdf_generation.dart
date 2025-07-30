@@ -284,7 +284,8 @@ class PdfGeneration {
                     style: pw.TextStyle(fontSize: 10),
                   ),
                   pw.Bullet(
-                    text: 'Fees once paid are non-refundable.',
+                    text:
+                        'Memberships are non-transferable and cannot be exchanged\nwith other individuals under any circumstance.',
                     style: pw.TextStyle(fontSize: 10),
                   ),
 
