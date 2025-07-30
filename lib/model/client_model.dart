@@ -12,7 +12,7 @@ class ClientModel {
   String totalAmount;
   String paymentDate;
   String paymentStatus;
-  String? pdfUrl;
+  String? pdfUrl; // downloadUrl for PDF
 
   ClientModel({
     required this.id,
@@ -46,7 +46,7 @@ class ClientModel {
       'totalAmount': totalAmount,
       'paymentDate': paymentDate,
       'paymentStatus': paymentStatus,
-      if (pdfUrl != null) 'pdfUrl': pdfUrl,
+      if (pdfUrl != null) 'pdfUrl': pdfUrl, // include downloadUrl if present
     };
   }
 
@@ -65,7 +65,7 @@ class ClientModel {
       totalAmount: map['totalAmount'] ?? '',
       paymentDate: map['paymentDate'] ?? '',
       paymentStatus: map['paymentStatus'] ?? '',
-      pdfUrl: map['pdfUrl'],
+      pdfUrl: map['pdfUrl'], // get downloadUrl if present
     );
   }
 }

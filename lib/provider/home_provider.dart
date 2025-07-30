@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitnessfuel/model/client_model.dart';
+import 'package:fitnessfuel/services/pdf_generation.dart';
 import 'package:flutter/material.dart';
 
 class HomeProvider extends ChangeNotifier {
@@ -40,10 +41,8 @@ class HomeProvider extends ChangeNotifier {
       }
       final uid = user.uid;
 
-      // Parse and format dates to ISO8601 string (or keep as dd/MM/yyyy if you want)
       String formatDate(String date) {
         try {
-          // Try parsing dd/MM/yyyy
           final parts = date.split('/');
           if (parts.length == 3) {
             final d = DateTime(
@@ -54,7 +53,7 @@ class HomeProvider extends ChangeNotifier {
             return d.toIso8601String();
           }
         } catch (_) {}
-        return date; // fallback to original if parsing fails
+        return date;
       }
 
       ClientModel userCred = ClientModel(
@@ -77,11 +76,17 @@ class HomeProvider extends ChangeNotifier {
         paymentStatus: paymentStatus.trim(),
       );
 
+      // Generate PDF and get downloadUrl
+      final downloadUrl = await PdfGeneration().generateAndSendReceipt(userCred);
+
+      // Update client with downloadUrl
+      final clientWithPdf = userCred..pdfUrl = downloadUrl;
+
       await firestore
           .doc(uid)
           .collection('ClientCollection')
           .doc(id)
-          .set(userCred.toMap())
+          .set(clientWithPdf.toMap())
           .then((value) {
             return result = 'Success';
           })
@@ -90,8 +95,7 @@ class HomeProvider extends ChangeNotifier {
             return result = 'Error: $error';
           });
       print('Data Uploaded Successfully');
-      // Return the client model for further use (e.g., PDF)
-      return userCred;
+      return clientWithPdf;
     } catch (e) {
       print('$e');
       return '$e';
