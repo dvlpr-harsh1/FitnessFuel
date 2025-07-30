@@ -3,7 +3,7 @@ import 'package:fitnessfuel/utils/my_color.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton {
-  custButton({required String text, required Function() onTap}) {
+  custButton({required Widget labelWidget, required Function() onTap}) {
     return Material(
       borderRadius: BorderRadius.circular(10),
       color: MyColor.black,
@@ -15,10 +15,7 @@ class CustomButton {
           alignment: Alignment.center,
           width: mq.width,
           height: 40,
-          child: Text(
-            text,
-            style: TextStyle(color: MyColor.background, fontSize: 18),
-          ),
+          child: labelWidget
         ),
       ),
     );

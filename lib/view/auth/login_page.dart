@@ -11,22 +11,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-class LogInPage extends StatelessWidget {
+class LogInPage extends StatefulWidget {
   const LogInPage({super.key});
+
+  @override
+  State<LogInPage> createState() => _LogInPageState();
+}
+
+class _LogInPageState extends State<LogInPage> {
+  final emailController = TextEditingController();
+  final passController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final _authProvider = Provider.of<AuthController>(context);
     Footer footer = Footer();
     CustomButton customButton = CustomButton();
-    // Move controllers to be fields of the widget, not local variables
-    // so their values persist across rebuilds.
-    // (For StatelessWidget, use a StatefulWidget or use a workaround as below)
-    // For now, use workaround with ValueNotifier:
-    final emailNotifier = ValueNotifier<String>('');
-    final passNotifier = ValueNotifier<String>('');
 
-    // Helper to show error as dialog for mobile/tablet
     void showError(String msg) {
       if (MediaQuery.of(context).size.width <= 900) {
         showDialog(
@@ -148,19 +156,13 @@ class LogInPage extends StatelessWidget {
                           child: Text('Email', style: TextStyle(fontSize: 16)),
                         ),
                         SizedBox(height: 5),
-                        ValueListenableBuilder<String>(
-                          valueListenable: emailNotifier,
-                          builder: (context, value, _) {
-                            return TextField(
-                              // controller: _emailController,
-                              onChanged: (val) => emailNotifier.value = val,
-                              keyboardType: TextInputType.emailAddress,
-                              autofillHints: const [AutofillHints.email],
-                              decoration: const InputDecoration(
-                                hintText: "Enter your email",
-                              ),
-                            );
-                          },
+                        TextField(
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.email],
+                          decoration: const InputDecoration(
+                            hintText: "Enter your email",
+                          ),
                         ),
                         SizedBox(height: 15),
 
@@ -172,19 +174,13 @@ class LogInPage extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 5),
-                        ValueListenableBuilder<String>(
-                          valueListenable: passNotifier,
-                          builder: (context, value, _) {
-                            return TextField(
-                              // controller: _passController,
-                              onChanged: (val) => passNotifier.value = val,
-                              obscureText: true,
-                              autofillHints: const [AutofillHints.password],
-                              decoration: const InputDecoration(
-                                hintText: "Enter your password",
-                              ),
-                            );
-                          },
+                        TextField(
+                          controller: passController,
+                          obscureText: true,
+                          autofillHints: const [AutofillHints.password],
+                          decoration: const InputDecoration(
+                            hintText: "Enter your password",
+                          ),
                         ),
                         SizedBox(height: 30),
 
@@ -197,11 +193,19 @@ class LogInPage extends StatelessWidget {
                         ///Login/Create Account Button
                         if (!_authProvider.isCreateAccountPage)
                           customButton.custButton(
-                            text: 'Log In',
+                            labelWidget: _authProvider.isLoading
+                                ? CircularProgressIndicator()
+                                : Text(
+                                    'Log In',
+                                    style: TextStyle(
+                                      color: MyColor.background,
+                                      fontSize: 18,
+                                    ),
+                                  ),
                             onTap: () async {
                               FocusScope.of(context).unfocus();
-                              final email = emailNotifier.value.trim();
-                              final pass = passNotifier.value.trim();
+                              final email = emailController.text.trim();
+                              final pass = passController.text.trim();
                               if (email.isEmpty || pass.isEmpty) {
                                 showError("Email and password required.");
                                 return;
@@ -228,18 +232,32 @@ class LogInPage extends StatelessWidget {
                           SizedBox(height: 15),
                         if (!_authProvider.isCreateAccountPage)
                           customButton.custButton(
-                            text: 'Create Admin',
+                            labelWidget: Text(
+                              'Create Account',
+                              style: TextStyle(
+                                color: MyColor.background,
+                                fontSize: 18,
+                              ),
+                            ),
                             onTap: () {
                               _authProvider.toggleCreateAccountPage();
                             },
                           ),
                         if (_authProvider.isCreateAccountPage)
                           customButton.custButton(
-                            text: 'Create Admin',
+                            labelWidget: _authProvider.isLoading
+                                ? CircularProgressIndicator()
+                                : Text(
+                                    'Create Account',
+                                    style: TextStyle(
+                                      color: MyColor.background,
+                                      fontSize: 18,
+                                    ),
+                                  ),
                             onTap: () async {
                               FocusScope.of(context).unfocus();
-                              final email = emailNotifier.value.trim();
-                              final pass = passNotifier.value.trim();
+                              final email = emailController.text.trim();
+                              final pass = passController.text.trim();
                               if (email.isEmpty || pass.isEmpty) {
                                 showError("Email and password required.");
                                 return;
@@ -266,7 +284,15 @@ class LogInPage extends StatelessWidget {
                           SizedBox(height: 15),
                         if (_authProvider.isCreateAccountPage)
                           customButton.custButton(
-                            text: 'Back to Login',
+                            labelWidget: _authProvider.isLoading
+                                ? CircularProgressIndicator()
+                                : Text(
+                                    'Create Account',
+                                    style: TextStyle(
+                                      color: MyColor.background,
+                                      fontSize: 18,
+                                    ),
+                                  ),
                             onTap: () {
                               _authProvider.toggleCreateAccountPage();
                             },
