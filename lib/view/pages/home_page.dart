@@ -308,6 +308,44 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
     }
   }
 
+  void _adjustEndDate() {
+    final startText = startDateController.text;
+    if (startText.isEmpty) {
+      endDateController.text = '';
+      return;
+    }
+    try {
+      final parts = startText.split('/');
+      if (parts.length != 3) return;
+      final start = DateTime(
+        int.parse(parts[2]),
+        int.parse(parts[1]),
+        int.parse(parts[0]),
+      );
+      DateTime end;
+      switch (selectedPlan) {
+        case 'Monthly':
+          end = DateTime(start.year, start.month + 1, start.day);
+          break;
+        case 'Quarterly':
+          end = DateTime(start.year, start.month + 3, start.day);
+          break;
+        case 'Half-Yearly':
+          end = DateTime(start.year, start.month + 6, start.day);
+          break;
+        case 'Yearly':
+          end = DateTime(start.year + 1, start.month, start.day);
+          break;
+        default:
+          end = start;
+      }
+      endDateController.text =
+          "${end.day.toString().padLeft(2, '0')}/${end.month.toString().padLeft(2, '0')}/${end.year}";
+    } catch (_) {
+      endDateController.text = '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isWeb = mq.width > webScreenSize;
@@ -422,6 +460,32 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             validator: (val) => val == null || val.isEmpty ? 'Required' : null,
           ),
           SizedBox(height: fieldSpacing),
+          // Plan Type
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Plan Type",
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          SizedBox(height: 6),
+          customDropdownfield.dropdownField(
+            title: "",
+            value: selectedPlan,
+            items: planTypes,
+            onChanged: (val) {
+              setState(() {
+                selectedPlan = val;
+                _adjustEndDate();
+              });
+            },
+            context: context,
+          ),
+          SizedBox(height: fieldSpacing),
 
           // Start Date & End Date
           (isTablet || isWeb)
@@ -444,7 +508,10 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                           ),
                           SizedBox(height: 6),
                           GestureDetector(
-                            onTap: () => _selectDate(startDateController),
+                            onTap: () async {
+                              await _selectDate(startDateController);
+                              _adjustEndDate();
+                            },
                             child: AbsorbPointer(
                               child: customTextfield.customTextfield(
                                 controller: startDateController,
@@ -477,18 +544,16 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                             ),
                           ),
                           SizedBox(height: 6),
-                          GestureDetector(
-                            onTap: () => _selectDate(endDateController),
-                            child: AbsorbPointer(
-                              child: customTextfield.customTextfield(
-                                controller: endDateController,
-                                title: "",
-                                validator: (val) => val == null || val.isEmpty
-                                    ? 'Required'
-                                    : null,
-                                hintText: 'Select End Date',
-                                suffixIcon: const Icon(Icons.calendar_today),
-                              ),
+                          AbsorbPointer(
+                            child: customTextfield.customTextfield(
+                              controller: endDateController,
+                              title: "",
+                              validator: (val) => val == null || val.isEmpty
+                                  ? 'Required'
+                                  : null,
+                              hintText: 'Auto-calculated End Date',
+                              suffixIcon: const Icon(Icons.calendar_today),
+                              readOnly: true,
                             ),
                           ),
                         ],
@@ -511,7 +576,10 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                     ),
                     SizedBox(height: 6),
                     GestureDetector(
-                      onTap: () => _selectDate(startDateController),
+                      onTap: () async {
+                        await _selectDate(startDateController);
+                        _adjustEndDate();
+                      },
                       child: AbsorbPointer(
                         child: customTextfield.customTextfield(
                           controller: startDateController,
@@ -536,43 +604,19 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                       ),
                     ),
                     SizedBox(height: 6),
-                    GestureDetector(
-                      onTap: () => _selectDate(endDateController),
-                      child: AbsorbPointer(
-                        child: customTextfield.customTextfield(
-                          controller: endDateController,
-                          title: "",
-                          validator: (val) =>
-                              val == null || val.isEmpty ? 'Required' : null,
-                          hintText: 'Select End Date',
-                          suffixIcon: const Icon(Icons.calendar_today),
-                        ),
+                    AbsorbPointer(
+                      child: customTextfield.customTextfield(
+                        controller: endDateController,
+                        title: "",
+                        validator: (val) =>
+                            val == null || val.isEmpty ? 'Required' : null,
+                        hintText: 'Auto-calculated End Date',
+                        suffixIcon: const Icon(Icons.calendar_today),
+                        readOnly: true,
                       ),
                     ),
                   ],
                 ),
-          SizedBox(height: fieldSpacing),
-
-          // Plan Type
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Plan Type",
-              style: TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          SizedBox(height: 6),
-          customDropdownfield.dropdownField(
-            title: "",
-            value: selectedPlan,
-            items: planTypes,
-            onChanged: (val) => setState(() => selectedPlan = val),
-            context: context,
-          ),
           SizedBox(height: fieldSpacing),
 
           // Total Amount (always show before Paid/Remaining)
@@ -792,8 +836,8 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
-                  // Generate and send PDF receipt
-                  await PdfGeneration().generateAndSendReceipt(result);
+                  // Remove this line to avoid double PDF download:
+                  // await PdfGeneration().generateAndSendReceipt(result);
                   // Optionally clear fields here
                   nameController.clear();
                   birthDateController.clear();
