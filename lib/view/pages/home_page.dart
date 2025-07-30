@@ -798,10 +798,15 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
           SizedBox(height: isWeb ? 48 : (isTablet ? 36 : 24)),
 
           customButton.custButton(
-            labelWidget: Text(
-              'Create Account',
-              style: TextStyle(color: MyColor.background, fontSize: 18),
-            ),
+            labelWidget: _authProvider.isLoading
+                                ? CircularProgressIndicator()
+                                : Text(
+                                    'Create Account',
+                                    style: TextStyle(
+                                      color: MyColor.background,
+                                      fontSize: 18,
+                                    ),
+                                  ),
             onTap: () async {
               if (_formKey.currentState!.validate()) {
                 final homeProvider = Provider.of<HomeProvider>(
