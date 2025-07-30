@@ -800,12 +800,22 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
 
           customButton.custButton(
             labelWidget: isLoading
-                ? CircularProgressIndicator()
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.2,
+                    ),
+                  )
                 : Text(
                     'Submit',
                     style: TextStyle(color: MyColor.background, fontSize: 18),
                   ),
             onTap: () async {
+              setState(() {
+                isLoading = true;
+              });
               if (_formKey.currentState!.validate()) {
                 final homeProvider = Provider.of<HomeProvider>(
                   context,
@@ -861,6 +871,9 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                   });
                 }
               }
+              setState(() {
+                isLoading = false;
+              });
             },
           ),
         ],

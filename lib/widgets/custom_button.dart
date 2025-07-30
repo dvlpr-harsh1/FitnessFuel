@@ -15,7 +15,7 @@ class CustomButton {
           alignment: Alignment.center,
           width: mq.width,
           height: 40,
-          child: labelWidget
+          child: labelWidget,
         ),
       ),
     );

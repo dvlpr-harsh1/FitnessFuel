@@ -196,14 +196,28 @@ class _LogInPageState extends State<LogInPage> {
                         if (_authProvider.isLoading)
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 10),
-                            child: CircularProgressIndicator(),
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            ),
                           ),
 
                         ///Login/Create Account Button
                         if (!_authProvider.isCreateAccountPage)
                           customButton.custButton(
                             labelWidget: _authProvider.isLoading
-                                ? CircularProgressIndicator()
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.2,
+                                    ),
+                                  )
                                 : Text(
                                     'Log In',
                                     style: TextStyle(
@@ -257,7 +271,14 @@ class _LogInPageState extends State<LogInPage> {
                         if (_authProvider.isCreateAccountPage)
                           customButton.custButton(
                             labelWidget: _authProvider.isLoading
-                                ? CircularProgressIndicator()
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.2,
+                                    ),
+                                  )
                                 : Text(
                                     'Create Account',
                                     style: TextStyle(
@@ -296,7 +317,14 @@ class _LogInPageState extends State<LogInPage> {
                         if (_authProvider.isCreateAccountPage)
                           customButton.custButton(
                             labelWidget: _authProvider.isLoading
-                                ? CircularProgressIndicator()
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.2,
+                                    ),
+                                  )
                                 : Text(
                                     'Create Account',
                                     style: TextStyle(
