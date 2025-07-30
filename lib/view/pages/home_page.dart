@@ -248,6 +248,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
   final remainingAmountController = TextEditingController();
   final totalAmountController = TextEditingController();
   final paymentDateController = TextEditingController();
+  bool isLoading = false;
 
   String selectedPaymentStatus = 'Paid';
   final List<String> paymentStatusOptions = ['Paid', 'Unpaid'];
@@ -798,15 +799,12 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
           SizedBox(height: isWeb ? 48 : (isTablet ? 36 : 24)),
 
           customButton.custButton(
-            labelWidget: _authProvider.isLoading
-                                ? CircularProgressIndicator()
-                                : Text(
-                                    'Create Account',
-                                    style: TextStyle(
-                                      color: MyColor.background,
-                                      fontSize: 18,
-                                    ),
-                                  ),
+            labelWidget: isLoading
+                ? CircularProgressIndicator()
+                : Text(
+                    'Submit',
+                    style: TextStyle(color: MyColor.background, fontSize: 18),
+                  ),
             onTap: () async {
               if (_formKey.currentState!.validate()) {
                 final homeProvider = Provider.of<HomeProvider>(
