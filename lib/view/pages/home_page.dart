@@ -72,7 +72,6 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _homeProvider = Provider.of<HomeProvider>(context);
-
     Footer footer = Footer();
     AnimImage animImage = AnimImage();
 
@@ -349,7 +348,6 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
 
   @override
   Widget build(BuildContext context) {
-    final _authProvider = Provider.of<AuthController>(context);
     final bool isWeb = mq.width > webScreenSize;
     final bool isTablet = mq.width > 600 && mq.width <= webScreenSize;
     final double headingFontSize = isWeb ? 38 : (isTablet ? 32 : 24);
@@ -800,12 +798,10 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
           SizedBox(height: isWeb ? 48 : (isTablet ? 36 : 24)),
 
           customButton.custButton(
-            labelWidget: _authProvider.isLoading
-                ? CircularProgressIndicator()
-                : Text(
-                    'Create Account',
-                    style: TextStyle(color: MyColor.background, fontSize: 18),
-                  ),
+            labelWidget: Text(
+              'Create Account',
+              style: TextStyle(color: MyColor.background, fontSize: 18),
+            ),
             onTap: () async {
               if (_formKey.currentState!.validate()) {
                 final homeProvider = Provider.of<HomeProvider>(
