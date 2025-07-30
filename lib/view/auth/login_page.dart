@@ -160,10 +160,15 @@ class _LogInPageState extends State<LogInPage> {
                           controller: emailController,
                           keyboardType: TextInputType.emailAddress,
                           autofillHints: const [AutofillHints.email],
-                          decoration: const InputDecoration(
+                          textInputAction: TextInputAction.next,
+                          onChanged: (_) =>
+                              setState(() {}), // Ensures UI re-renders
+                          decoration: InputDecoration(
+                            labelText: 'Email',
                             hintText: "Enter your email",
                           ),
                         ),
+
                         SizedBox(height: 15),
 
                         Align(
@@ -178,10 +183,14 @@ class _LogInPageState extends State<LogInPage> {
                           controller: passController,
                           obscureText: true,
                           autofillHints: const [AutofillHints.password],
-                          decoration: const InputDecoration(
+                          textInputAction: TextInputAction.done,
+                          onChanged: (_) => setState(() {}),
+                          decoration: InputDecoration(
+                            labelText: 'Password',
                             hintText: "Enter your password",
                           ),
                         ),
+
                         SizedBox(height: 30),
 
                         if (_authProvider.isLoading)
@@ -206,10 +215,12 @@ class _LogInPageState extends State<LogInPage> {
                               FocusScope.of(context).unfocus();
                               final email = emailController.text.trim();
                               final pass = passController.text.trim();
+
                               if (email.isEmpty || pass.isEmpty) {
                                 showError("Email and password required.");
                                 return;
                               }
+
                               try {
                                 final success = await _authProvider.adminLogin(
                                   email: email,
