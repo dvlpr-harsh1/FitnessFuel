@@ -1128,6 +1128,8 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                                 final contact = (c['contact'] ?? '')
                                     .toString()
                                     .toLowerCase();
+
+                                // Search by name, contact, or whatsapp number
                                 return name.contains(query) ||
                                     contact.contains(query);
                               }).toList();
@@ -1386,8 +1388,13 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
                                 final contact = (c['contact'] ?? '')
                                     .toString()
                                     .toLowerCase();
+                                final whatsapp = (c['whatsapp'] ?? '')
+                                    .toString()
+                                    .toLowerCase();
+                                // Search by name, contact, or whatsapp number
                                 return name.contains(query) ||
-                                    contact.contains(query);
+                                    contact.contains(query) ||
+                                    whatsapp.contains(query);
                               }).toList();
                         if (filtered.isEmpty) {
                           return Center(child: Text('No clients found.'));
@@ -1892,6 +1899,10 @@ class _WebSearchClientPanelState extends State<_WebSearchClientPanel> {
                                     final contact = (c['contact'] ?? '')
                                         .toString()
                                         .toLowerCase();
+                                    final whatsapp = (c['whatsapp'] ?? '')
+                                        .toString()
+                                        .toLowerCase();
+                                    // Search by name, contact, or whatsapp number
                                     return name.contains(query) ||
                                         contact.contains(query);
                                   }).toList();
