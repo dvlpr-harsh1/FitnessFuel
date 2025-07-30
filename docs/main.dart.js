@@ -50695,37 +50695,37 @@ s=this.e
 s.M$=r
 s.L$=0
 this.aP()},
-O(a){var s,r,q,p,o,n,m,l,k=this,j=null,i="Password",h="Create Account",g=A.amJ(a,!0,t.nT),f=new A.Px(),e=new A.aA1(a),d=$.cg.aJ().a>600?$.cg.aJ().b*0.1:$.cg.aJ().b*0.1,c=A.fx(A.iN(j,A.aC("FitnessFuel",j,j,j,$.cg.aJ().a>600?A.aX(j,j,j,j,j,j,j,j,j,j,j,36,j,j,j,j,j,!0,j,j,j,j,j,j,j,j):A.aX(j,j,j,j,j,j,j,j,j,j,j,26,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j),B.aC,!1,j,j,j,j,j,j,j,j,j,j,j,j,j,new A.azS(a),j,j,j,j,j,j),B.cf,j,j,j,j)
-d=A.aMb(j,new A.G0(A.eD(j,j,B.a3,B.nh,j,j,j,2,j,j,j,j,j),new A.O(1/0,4),j),!0,0,0,c,d)
-c=$.cg.aJ().a
+O(a){var s,r,q,p,o,n,m,l,k=this,j=null,i="Create Account",h=A.amJ(a,!0,t.nT),g=new A.Px(),f=new A.aA1(a),e=$.cg.aJ().a>600?$.cg.aJ().b*0.1:$.cg.aJ().b*0.1,d=A.fx(A.iN(j,A.aC("FitnessFuel",j,j,j,$.cg.aJ().a>600?A.aX(j,j,j,j,j,j,j,j,j,j,j,36,j,j,j,j,j,!0,j,j,j,j,j,j,j,j):A.aX(j,j,j,j,j,j,j,j,j,j,j,26,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j),B.aC,!1,j,j,j,j,j,j,j,j,j,j,j,j,j,new A.azS(a),j,j,j,j,j,j),B.cf,j,j,j,j)
+e=A.aMb(j,new A.G0(A.eD(j,j,B.a3,B.nh,j,j,j,2,j,j,j,j,j),new A.O(1/0,4),j),!0,0,0,d,e)
+d=$.cg.aJ().a
 s=A.aU(204,B.nt.F()>>>16&255,B.nt.F()>>>8&255,B.nt.F()&255)
 r=$.cg.aJ().a>600?150:50
 q=$.cg.aJ().a>600?$.cg.aJ().a*0.02:$.cg.aJ().a*0.05
 p=$.cg.aJ().a>600?450:$.cg.aJ().a*0.9
 o=A.BP(new A.b1(12,12))
-n=g.b?"Create Admin":"Login"
+n=h.b?"Create Admin":"Login"
 m=t.o
 n=A.a([new A.cu(B.bc,j,j,A.aC(n,j,j,j,A.aX(j,j,j,j,j,j,j,j,j,j,j,$.cg.aJ().a>600?46:32,j,j,B.bQ,j,j,!0,j,j,j,j,j,j,j,j),j,j,j),j),A.aF(j,15,j)],m)
-if(g.d!=null&&$.cg.aJ().a>900){l=g.d
+if(h.d!=null&&$.cg.aJ().a>900){l=h.d
 l.toString
 n.push(new A.bD(B.Su,A.aC(l,j,j,j,B.aSl,j,j,j),j))}n.push(new A.cu(B.bc,j,j,A.aC("Email",j,j,j,A.aX(j,j,j,j,j,j,j,j,j,j,j,16,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j),j))
 n.push(A.aF(j,5,j))
-n.push(A.WI(!0,B.aFa,!1,j,!0,B.al,j,A.aGH(),k.d,j,j,j,j,j,2,A.t3(j,j,j,j,j,j,j,j,!0,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,"Enter your email",j,j,j,j,j,j,j,j,"Email",!0,!0,j,j,j,j,j,j,j,j,j,j,j,j,j),B.aC,!0,j,!0,j,!1,j,B.dA,j,j,j,B.M7,j,j,j,1,j,j,!1,"\u2022",j,new A.azT(k),j,j,j,!1,j,j,!1,j,!0,j,B.hr,j,j,B.de,B.cS,j,j,j,j,j,j,j,!0,B.bH,j,B.iw,j,B.M6,j,j))
+n.push(A.WI(!0,B.aFa,!1,j,!0,B.al,j,A.aGH(),k.d,j,j,j,j,j,2,A.t3(j,j,j,j,j,j,j,j,!0,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,"Enter your email",j,j,j,j,j,j,j,j,j,!0,!0,j,j,j,j,j,j,j,j,j,j,j,j,j),B.aC,!0,j,!0,j,!1,j,B.dA,j,j,j,B.M7,j,j,j,1,j,j,!1,"\u2022",j,new A.azT(k),j,j,j,!1,j,j,!1,j,!0,j,B.hr,j,j,B.de,B.cS,j,j,j,j,j,j,j,!0,B.bH,j,B.iw,j,B.M6,j,j))
 n.push(A.aF(j,15,j))
-n.push(new A.cu(B.bc,j,j,A.aC(i,j,j,j,A.aX(j,j,j,j,j,j,j,j,j,j,j,16,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j),j))
+n.push(new A.cu(B.bc,j,j,A.aC("Password",j,j,j,A.aX(j,j,j,j,j,j,j,j,j,j,j,16,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j),j))
 n.push(A.aF(j,5,j))
-n.push(A.WI(!0,B.aGz,!1,j,!0,B.al,j,A.aGH(),k.e,j,j,j,j,j,2,A.t3(j,j,j,j,j,j,j,j,!0,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,"Enter your password",j,j,j,j,j,j,j,j,i,!0,!0,j,j,j,j,j,j,j,j,j,j,j,j,j),B.aC,!0,j,!0,j,!1,j,B.dA,j,j,j,j,j,j,j,1,j,j,!0,"\u2022",j,new A.azU(k),j,j,j,!1,j,j,!1,j,!0,j,B.hr,j,j,B.de,B.cS,j,j,j,j,j,j,j,!0,B.bH,j,B.iw,j,B.qZ,j,j))
+n.push(A.WI(!0,B.aGz,!1,j,!0,B.al,j,A.aGH(),k.e,j,j,j,j,j,2,A.t3(j,j,j,j,j,j,j,j,!0,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,"Enter your password",j,j,j,j,j,j,j,j,j,!0,!0,j,j,j,j,j,j,j,j,j,j,j,j,j),B.aC,!0,j,!0,j,!1,j,B.dA,j,j,j,j,j,j,j,1,j,j,!0,"\u2022",j,new A.azU(k),j,j,j,!1,j,j,!1,j,!0,j,B.hr,j,j,B.de,B.cS,j,j,j,j,j,j,j,!0,B.bH,j,B.iw,j,B.qZ,j,j))
 n.push(A.aF(j,30,j))
-if(g.c)n.push(B.aKR)
-if(!g.b){l=g.c?B.m7:A.aC("Log In",j,j,j,A.aX(j,j,B.M,j,j,j,j,j,j,j,j,18,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j)
-n.push(f.wN(l,new A.azV(k,a,e,g)))}if(!g.b)n.push(A.aF(j,15,j))
-if(!g.b)n.push(f.wN(A.aC(h,j,j,j,A.aX(j,j,B.M,j,j,j,j,j,j,j,j,18,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j),new A.azW(g)))
-if(g.b){l=g.c?B.m7:A.aC(h,j,j,j,A.aX(j,j,B.M,j,j,j,j,j,j,j,j,18,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j)
-n.push(f.wN(l,new A.azX(k,a,e,g)))}if(g.b)n.push(A.aF(j,15,j))
-if(g.b){e=g.c?B.m7:A.aC(h,j,j,j,A.aX(j,j,B.M,j,j,j,j,j,j,j,j,18,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j)
-n.push(f.wN(e,new A.azY(g)))}n.push(A.aF(j,15,j))
-if(!g.b){e=A.qV(j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,A.MG(new A.azZ()),j,j,j,j,j,j,j,j,j)
-n.push(A.HZ(A.aC("Forgot your password?",j,j,j,A.aX(j,j,B.O,j,j,j,j,j,j,j,j,16,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j),new A.aA_(),e))}return A.aJl(d,A.iN(j,A.aqP(A.dp(A.a([A.eD(j,A.eg(A.eD(j,A.dp(n,B.av,B.i3,B.af),B.a3,j,j,new A.dX(B.M,j,new A.dP(new A.bi(B.O,2,B.a4,-1),new A.bi(B.O,2,B.a4,-1),new A.bi(B.O,7,B.a4,-1),new A.bi(B.O,2,B.a4,-1)),o,j,j,B.bv),j,j,new A.as(0,50,0,r),new A.as(q,40,q,40),j,j,p),j,j),B.a3,s,j,j,j,j,j,j,j,j,c),new A.DD(j)],m),B.av,B.a9,B.af)),B.aC,!1,j,j,j,j,j,j,j,j,j,j,j,j,j,new A.aA0(a),j,j,j,j,j,j),!0)}}
+if(h.c)n.push(B.aKR)
+if(!h.b){l=h.c?B.m7:A.aC("Log In",j,j,j,A.aX(j,j,B.M,j,j,j,j,j,j,j,j,18,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j)
+n.push(g.wN(l,new A.azV(k,a,f,h)))}if(!h.b)n.push(A.aF(j,15,j))
+if(!h.b)n.push(g.wN(A.aC(i,j,j,j,A.aX(j,j,B.M,j,j,j,j,j,j,j,j,18,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j),new A.azW(h)))
+if(h.b){l=h.c?B.m7:A.aC(i,j,j,j,A.aX(j,j,B.M,j,j,j,j,j,j,j,j,18,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j)
+n.push(g.wN(l,new A.azX(k,a,f,h)))}if(h.b)n.push(A.aF(j,15,j))
+if(h.b){f=h.c?B.m7:A.aC("Log In",j,j,j,A.aX(j,j,B.M,j,j,j,j,j,j,j,j,18,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j)
+n.push(g.wN(f,new A.azY(h)))}n.push(A.aF(j,15,j))
+if(!h.b){f=A.qV(j,j,j,j,j,j,j,j,j,j,j,j,j,j,j,A.MG(new A.azZ()),j,j,j,j,j,j,j,j,j)
+n.push(A.HZ(A.aC("Forgot your password?",j,j,j,A.aX(j,j,B.O,j,j,j,j,j,j,j,j,16,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),j,j,j),new A.aA_(),f))}return A.aJl(e,A.iN(j,A.aqP(A.dp(A.a([A.eD(j,A.eg(A.eD(j,A.dp(n,B.av,B.i3,B.af),B.a3,j,j,new A.dX(B.M,j,new A.dP(new A.bi(B.O,2,B.a4,-1),new A.bi(B.O,2,B.a4,-1),new A.bi(B.O,7,B.a4,-1),new A.bi(B.O,2,B.a4,-1)),o,j,j,B.bv),j,j,new A.as(0,50,0,r),new A.as(q,40,q,40),j,j,p),j,j),B.a3,s,j,j,j,j,j,j,j,j,d),new A.DD(j)],m),B.av,B.a9,B.af)),B.aC,!1,j,j,j,j,j,j,j,j,j,j,j,j,j,new A.aA0(a),j,j,j,j,j,j),!0)}}
 A.aA1.prototype={
 $1(a){var s=null,r=this.a
 if(A.c5(r,s,t.w).w.a.a<=900)A.aL7(s,s,!0,s,new A.aA3(a),r,s,!0,t.z)

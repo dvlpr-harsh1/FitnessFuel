@@ -164,7 +164,6 @@ class _LogInPageState extends State<LogInPage> {
                           onChanged: (_) =>
                               setState(() {}), // Ensures UI re-renders
                           decoration: InputDecoration(
-                            labelText: 'Email',
                             hintText: "Enter your email",
                           ),
                         ),
@@ -186,7 +185,6 @@ class _LogInPageState extends State<LogInPage> {
                           textInputAction: TextInputAction.done,
                           onChanged: (_) => setState(() {}),
                           decoration: InputDecoration(
-                            labelText: 'Password',
                             hintText: "Enter your password",
                           ),
                         ),
@@ -326,7 +324,7 @@ class _LogInPageState extends State<LogInPage> {
                                     ),
                                   )
                                 : Text(
-                                    'Create Account',
+                                    'Log In',
                                     style: TextStyle(
                                       color: MyColor.background,
                                       fontSize: 18,
