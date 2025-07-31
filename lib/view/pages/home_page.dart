@@ -85,9 +85,21 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return date;
   }
 
-  int getRemainingDays(String endDate) {
+  int getRemainingDays(String startDate, String endDate) {
     try {
-      DateTime end;
+      DateTime start, end;
+      if (startDate.contains('-')) {
+        start = DateTime.parse(startDate);
+      } else if (startDate.contains('/')) {
+        final parts = startDate.split('/');
+        start = DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      } else {
+        return 0;
+      }
       if (endDate.contains('-')) {
         end = DateTime.parse(endDate);
       } else if (endDate.contains('/')) {
@@ -101,11 +113,19 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         return 0;
       }
       final now = DateTime.now();
-      // Only date part, ignore time
       final today = DateTime(now.year, now.month, now.day);
+      final startDay = DateTime(start.year, start.month, start.day);
       final endDay = DateTime(end.year, end.month, end.day);
-      final diff = endDay.difference(today).inDays;
-      return diff >= 0 ? diff : 0;
+
+      if (today.isBefore(startDay)) {
+        // Before plan starts: show total plan days
+        final totalDays = endDay.difference(startDay).inDays;
+        return totalDays >= 0 ? totalDays : 0;
+      } else {
+        // After plan starts: show remaining days
+        final remain = endDay.difference(today).inDays;
+        return remain >= 0 ? remain : 0;
+      }
     } catch (_) {
       return 0;
     }
@@ -996,9 +1016,21 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
     return date;
   }
 
-  int getRemainingDays(String endDate) {
+  int getRemainingDays(String startDate, String endDate) {
     try {
-      DateTime end;
+      DateTime start, end;
+      if (startDate.contains('-')) {
+        start = DateTime.parse(startDate);
+      } else if (startDate.contains('/')) {
+        final parts = startDate.split('/');
+        start = DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      } else {
+        return 0;
+      }
       if (endDate.contains('-')) {
         end = DateTime.parse(endDate);
       } else if (endDate.contains('/')) {
@@ -1013,9 +1045,16 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
       }
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
+      final startDay = DateTime(start.year, start.month, start.day);
       final endDay = DateTime(end.year, end.month, end.day);
-      final diff = endDay.difference(today).inDays;
-      return diff >= 0 ? diff : 0;
+
+      if (today.isBefore(startDay)) {
+        final totalDays = endDay.difference(startDay).inDays;
+        return totalDays >= 0 ? totalDays : 0;
+      } else {
+        final remain = endDay.difference(today).inDays;
+        return remain >= 0 ? remain : 0;
+      }
     } catch (_) {
       return 0;
     }
@@ -1144,7 +1183,10 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                               client['startDate'],
                             );
                             final end = formatDateForList(client['endDate']);
-                            final remain = getRemainingDays(client['endDate']);
+                            final remain = getRemainingDays(
+                              client['startDate'],
+                              client['endDate'],
+                            );
                             return Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               decoration: BoxDecoration(
@@ -1258,9 +1300,21 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
     return date;
   }
 
-  int getRemainingDays(String endDate) {
+  int getRemainingDays(String startDate, String endDate) {
     try {
-      DateTime end;
+      DateTime start, end;
+      if (startDate.contains('-')) {
+        start = DateTime.parse(startDate);
+      } else if (startDate.contains('/')) {
+        final parts = startDate.split('/');
+        start = DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      } else {
+        return 0;
+      }
       if (endDate.contains('-')) {
         end = DateTime.parse(endDate);
       } else if (endDate.contains('/')) {
@@ -1275,9 +1329,16 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
       }
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
+      final startDay = DateTime(start.year, start.month, start.day);
       final endDay = DateTime(end.year, end.month, end.day);
-      final diff = endDay.difference(today).inDays;
-      return diff >= 0 ? diff : 0;
+
+      if (today.isBefore(startDay)) {
+        final totalDays = endDay.difference(startDay).inDays;
+        return totalDays >= 0 ? totalDays : 0;
+      } else {
+        final remain = endDay.difference(today).inDays;
+        return remain >= 0 ? remain : 0;
+      }
     } catch (_) {
       return 0;
     }
@@ -1407,7 +1468,10 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
                               client['startDate'],
                             );
                             final end = formatDateForList(client['endDate']);
-                            final remain = getRemainingDays(client['endDate']);
+                            final remain = getRemainingDays(
+                              client['startDate'],
+                              client['endDate'],
+                            );
                             return Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               decoration: BoxDecoration(
@@ -1755,9 +1819,21 @@ class _WebSearchClientPanelState extends State<_WebSearchClientPanel> {
     return date;
   }
 
-  int getRemainingDays(String endDate) {
+  int getRemainingDays(String startDate, String endDate) {
     try {
-      DateTime end;
+      DateTime start, end;
+      if (startDate.contains('-')) {
+        start = DateTime.parse(startDate);
+      } else if (startDate.contains('/')) {
+        final parts = startDate.split('/');
+        start = DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      } else {
+        return 0;
+      }
       if (endDate.contains('-')) {
         end = DateTime.parse(endDate);
       } else if (endDate.contains('/')) {
@@ -1772,9 +1848,16 @@ class _WebSearchClientPanelState extends State<_WebSearchClientPanel> {
       }
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
+      final startDay = DateTime(start.year, start.month, start.day);
       final endDay = DateTime(end.year, end.month, end.day);
-      final diff = endDay.difference(today).inDays;
-      return diff >= 0 ? diff : 0;
+
+      if (today.isBefore(startDay)) {
+        final totalDays = endDay.difference(startDay).inDays;
+        return totalDays >= 0 ? totalDays : 0;
+      } else {
+        final remain = endDay.difference(today).inDays;
+        return remain >= 0 ? remain : 0;
+      }
     } catch (_) {
       return 0;
     }
@@ -1919,6 +2002,7 @@ class _WebSearchClientPanelState extends State<_WebSearchClientPanel> {
                                   client['endDate'],
                                 );
                                 final remain = getRemainingDays(
+                                  client['startDate'],
                                   client['endDate'],
                                 );
                                 return Container(
