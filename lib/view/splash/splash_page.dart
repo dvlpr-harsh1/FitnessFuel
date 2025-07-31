@@ -21,10 +21,25 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Image.asset(
-          'assets/images/logo.jpg',
-          height: 200,
-          // width: 200,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Fitness',
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                fontSize: 90,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              'Fuel',
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                fontSize: 90,
+                color: Colors.redAccent,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
