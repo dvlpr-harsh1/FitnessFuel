@@ -12,7 +12,7 @@ It allows gym owners to add client data, auto-generate PDF receipts, upload them
 - ✅ Add new gym client details
 - ✅ Auto-generate PDF receipt using `pdf` package
 - ✅ Upload PDF to **Firebase Storage**
-- ✅ Send receipt link via **WhatsApp** to the client
+<!-- - ✅ Send receipt link via **WhatsApp** to the client-->
 - ✅ Flutter web compatible (hosted on GitHub Pages)
 
 ---
