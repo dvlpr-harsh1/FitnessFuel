@@ -117,13 +117,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       final startDay = DateTime(start.year, start.month, start.day);
       final endDay = DateTime(end.year, end.month, end.day);
 
+      // Smooth animation: use AnimatedSwitcher for the Remain days text in the UI (not here in logic)
       if (today.isBefore(startDay)) {
-        // Before plan starts: show total plan days
-        final totalDays = endDay.difference(startDay).inDays;
+        final totalDays = endDay.difference(startDay).inDays + 1;
         return totalDays >= 0 ? totalDays : 0;
+      } else if (today.isAfter(endDay)) {
+        return 0;
       } else {
-        // After plan starts: show remaining days
-        final remain = endDay.difference(today).inDays;
+        final remain = endDay.difference(today).inDays + 1;
         return remain >= 0 ? remain : 0;
       }
     } catch (_) {
@@ -1854,8 +1855,10 @@ class _WebSearchClientPanelState extends State<_WebSearchClientPanel> {
       if (today.isBefore(startDay)) {
         final totalDays = endDay.difference(startDay).inDays;
         return totalDays >= 0 ? totalDays : 0;
+      } else if (today.isAfter(endDay)) {
+        return 0;
       } else {
-        final remain = endDay.difference(today).inDays;
+        final remain = endDay.difference(today).inDays + 1;
         return remain >= 0 ? remain : 0;
       }
     } catch (_) {
