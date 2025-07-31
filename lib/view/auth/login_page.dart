@@ -310,6 +310,7 @@ class _LogInPageState extends State<LogInPage> {
                               }
                             },
                           ),
+                        SizedBox(height: 16),
                         if (_authProvider.isCreateAccountPage)
                           customButton.custButton(
                             labelWidget: _authProvider.isLoading
