@@ -21,9 +21,10 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text(
-          'FitnessFuel',
-          style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: 50),
+        child: Image.asset(
+          'assets/images/logo.jpg',
+          height: 200,
+          // width: 200,
         ),
       ),
     );

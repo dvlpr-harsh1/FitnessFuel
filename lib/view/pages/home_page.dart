@@ -156,7 +156,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         scrolledUnderElevation: 0,
         elevation: 0,
         toolbarHeight: mq.width > webScreenSize
-            ? mq.height * .085
+            ? mq.height * .22
             : mq.height * .08,
         centerTitle: true,
         title: MouseRegion(
@@ -168,11 +168,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 MaterialPageRoute(builder: (context) => Home()),
               );
             },
-            child: Text(
-              'FitnessFuel',
-              style: mq.width > webScreenSize
-                  ? TextStyle(fontSize: 36)
-                  : TextStyle(fontSize: 26),
+            child: Image.asset(
+              'assets/images/logo.jpg',
+              height: 160,
+              // width: 200,
             ),
           ),
         ),
