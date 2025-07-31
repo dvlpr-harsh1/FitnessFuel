@@ -1644,7 +1644,12 @@ class _FetchedClientDetailCard extends StatelessWidget {
             SizedBox(height: 10),
             Row(
               children: [
-                // Icon(Icons.whatsapp, color: Colors.green[400], size: 20),
+                //lolo
+                Image.asset(
+                  'assets/images/whatsapp.png',
+                  height: 24,
+                  width: 24,
+                ),
                 SizedBox(width: 10),
                 Text(
                   "WhatsApp: ",
