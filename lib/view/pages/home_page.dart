@@ -1792,12 +1792,11 @@ class _WebSearchClientPanelState extends State<_WebSearchClientPanel> {
             ? constraints.maxWidth
             : 500;
         return Card(
-          elevation: 2,
+          elevation: 4,
           margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
           child: Container(
+            color: Colors.white,
             width: maxPanelWidth,
             constraints: BoxConstraints(maxWidth: maxPanelWidth, minWidth: 320),
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
