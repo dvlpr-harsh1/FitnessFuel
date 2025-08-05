@@ -1718,7 +1718,7 @@ class _FetchedClientDetailCard extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple[400],
+                  backgroundColor: Colors.grey[800],
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                   textStyle: TextStyle(
@@ -1732,8 +1732,8 @@ class _FetchedClientDetailCard extends StatelessWidget {
                   elevation: 6,
                   shadowColor: Colors.purple.withOpacity(0.18),
                 ),
-                icon: Icon(Icons.arrow_back),
-                label: Text("Back"),
+                icon: Icon(Icons.close, color: Colors.redAccent),
+                label: Text("Close", style: TextStyle(color: Colors.redAccent)),
                 onPressed: onBack,
               ),
             ),
