@@ -1237,10 +1237,10 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                               ),
                               child: ListTile(
                                 leading: CircleAvatar(
-                                  backgroundColor: Colors.purple.shade100,
+                                  backgroundColor: Colors.red.shade100,
                                   child: Icon(
                                     Icons.person,
-                                    color: Colors.purple.shade700,
+                                    color: Colors.red.shade700,
                                   ),
                                 ),
                                 title: Text(
@@ -1532,10 +1532,10 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
                               ),
                               child: ListTile(
                                 leading: CircleAvatar(
-                                  backgroundColor: Colors.purple.shade100,
+                                  backgroundColor: Colors.red.shade100,
                                   child: Icon(
                                     Icons.person,
-                                    color: Colors.purple.shade700,
+                                    color: Colors.red.shade700,
                                   ),
                                 ),
                                 title: Text(
@@ -1656,12 +1656,8 @@ class _FetchedClientDetailCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundColor: Colors.purple[100],
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.purple[700],
-                    size: 32,
-                  ),
+                  backgroundColor: Colors.red[100],
+                  child: Icon(Icons.person, color: Colors.red[700], size: 32),
                 ),
                 SizedBox(width: 18),
                 Expanded(
@@ -1689,7 +1685,7 @@ class _FetchedClientDetailCard extends StatelessWidget {
               icon: Icons.phone,
               label: "Contact",
               value: client['contact'],
-              iconColor: Colors.purple[300],
+              iconColor: Colors.red[300],
             ),
             _infoRowImage(
               asset: 'assets/images/whatsapp.png',
@@ -1732,7 +1728,7 @@ class _FetchedClientDetailCard extends StatelessWidget {
               icon: Icons.payment,
               label: "Payment Date",
               value: paymentDate,
-              iconColor: Colors.deepPurple[300],
+              iconColor: Colors.red[300],
             ),
             _infoRow(
               icon: Icons.verified,
@@ -1760,7 +1756,7 @@ class _FetchedClientDetailCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 6,
-                  shadowColor: Colors.purple.withOpacity(0.18),
+                  shadowColor: Colors.red.withOpacity(0.18),
                 ),
                 icon: Icon(Icons.close, color: Colors.redAccent),
                 label: Text("Close", style: TextStyle(color: Colors.redAccent)),
@@ -2105,11 +2101,8 @@ class _WebSearchClientPanelState extends State<WebSearchClientPanel> {
                       ),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: Colors.purple.shade100,
-                          child: Icon(
-                            Icons.person,
-                            color: Colors.purple.shade700,
-                          ),
+                          backgroundColor: Colors.red.shade100,
+                          child: Icon(Icons.person, color: Colors.red.shade700),
                         ),
                         title: Text(
                           client['name'],
