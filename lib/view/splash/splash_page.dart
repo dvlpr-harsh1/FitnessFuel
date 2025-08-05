@@ -8,38 +8,66 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
   SplashServices splashServices = SplashServices();
+
+  late AnimationController _controller;
+  late Animation<double> _fadeIn;
+
   @override
   void initState() {
-    // TODO: implement initState
-    splashServices.splash(context);
     super.initState();
+    splashServices.splash(context);
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+    _fadeIn = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final fontSize = width < 600 ? 40.0 : 90.0;
+
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Fitness',
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                fontSize: 90,
-                fontWeight: FontWeight.w500,
+        child: FadeTransition(
+          opacity: _fadeIn,
+          child: RichText(
+            text: TextSpan(
+              text: 'Fitness',
+              style: TextStyle(
+                fontSize: fontSize,
+                color: Theme.of(context).colorScheme.onBackground,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.2,
               ),
+              children: [
+                TextSpan(
+                  text: 'Fuel',
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              'Fuel',
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                fontSize: 90,
-                color: Colors.redAccent,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -151,29 +151,24 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         : (mq.width > 900 ? 80 : (mq.width > 600 ? 36 : 12));
 
     return Scaffold(
-      ///Appbar
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         scrolledUnderElevation: 0,
         elevation: 0,
         toolbarHeight: mq.width > webScreenSize
-            ? mq.height * .22
+            ? mq.height * .12
             : mq.height * .08,
         centerTitle: true,
-        title: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => Home()),
-              );
-            },
-            child: Image.asset(
-              'assets/images/logo.jpg',
-              height: 160,
-              // width: 200,
-            ),
-          ),
+        title: GestureDetector(
+          onTap: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => Home()),
+            );
+          },
+          child: Image.asset('assets/images/logo.jpg', height: 100),
         ),
         actions: [
           Container(
@@ -184,14 +179,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: IconButton(
-                hoverColor: Colors.transparent,
-                onPressed: () {
-                  AuthController().signOut(context);
-                },
                 icon: Icon(
                   Icons.logout,
-                  size: mq.width > webScreenSize ? 30 : 28,
+                  color: Theme.of(context).iconTheme.color,
                 ),
+                onPressed: () => AuthController().signOut(context),
               ),
             ),
           ),
@@ -211,7 +203,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   onPressed: toggleSearchPanel,
                   icon: Icon(
                     showSearchPanel ? Icons.close : CupertinoIcons.search,
-                    size: mq.width > webScreenSize ? 30 : 28,
+                    // size: mq.width > webScreenSize ? 30 : 28,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -255,80 +248,95 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         /// Add bottom border
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(4.0),
-          child: Container(color: MyColor.borderColor, height: 2.0),
+          child: Container(color: Theme.of(context).dividerColor, height: 2.0),
         ),
       ),
       body: Stack(
         children: [
           // Main content (form etc.)
-          SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: horizontalPadding,
-                vertical: 24,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Main form
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'FitnessFuel',
-                          style: GoogleFonts.poppins(
-                            color: MyColor.black.withOpacity(.6),
-                            fontSize: mq.width > webScreenSize ? 60 : 30,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        _GymClientFormFields(),
-                        SizedBox(height: 30),
-                        footer,
-                      ],
-                    ),
-                  ),
-                  if (mq.width > webScreenSize) SizedBox(width: 48),
-                ],
-              ),
-            ),
-          ),
-          // Animated search panel for web (NO overlay blur, just panel)
-          if (kIsWeb)
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 350),
-              curve: Curves.easeInOut,
-              top: 0,
-              bottom: 0,
-              right: showSearchPanel ? 0 : -520,
-              width: 500,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  color: Colors.transparent,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: _WebSearchClientPanel(
-                          onClose: () {
-                            toggleSearchPanel();
-                          },
-                          onClientTap: (client) {
-                            setState(() {
-                              selectedClient = client;
-                            });
-                          },
-                          selectedClient: selectedClient,
-                        ),
+          Expanded(
+            flex: 2,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: 24,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'FitnessFuel',
+                      style: GoogleFonts.poppins(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onBackground.withOpacity(.6),
+                        fontSize: mq.width > webScreenSize ? 60 : 30,
+                        fontWeight: FontWeight.w800,
                       ),
-                    ],
-                  ),
+                    ),
+                    _GymClientFormFields(),
+                    SizedBox(height: 30),
+                    footer,
+                  ],
                 ),
               ),
             ),
-          // Remove overlay blur and popup for client details!
+          ),
+          // Example threshold for tablet: 800 pixels
+          if (kIsWeb && mq.width > 800)
+            Row(
+              children: [
+                // Search panel (right side)
+                if (kIsWeb)
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 350),
+                    curve: Curves.easeInOut,
+                    width: showSearchPanel ? 500 : 0,
+                    child: showSearchPanel
+                        ? Material(
+                            color: Colors.transparent,
+                            child: Container(
+                              color: Colors.transparent,
+                              child: WebSearchClientPanel(
+                                onClose: () {
+                                  toggleSearchPanel();
+                                },
+                                onClientTap: (client) {
+                                  setState(() {
+                                    selectedClient = client;
+                                  });
+                                },
+                                selectedClient: selectedClient,
+                              ),
+                            ),
+                          )
+                        : null,
+                  ),
+                if (kIsWeb && showSearchPanel && selectedClient != null)
+                  Expanded(
+                    child: Container(
+                      height: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        border: Border(
+                          left: BorderSide(color: Colors.grey, width: 1.5),
+                        ),
+                      ),
+                      child: SingleChildScrollView(
+                        child: _FetchedClientDetailCard(
+                          client: selectedClient,
+                          onBack: () {
+                            setState(() {
+                              selectedClient = null;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
         ],
       ),
     );
@@ -470,7 +478,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
           Text(
             "Fill in the details to add a new gym member.",
             style: TextStyle(
-              color: Colors.black54,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
               fontWeight: FontWeight.w400,
               fontSize: subHeadingFontSize,
             ),
@@ -483,7 +491,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             child: Text(
               "Client Name",
               style: TextStyle(
-                color: Colors.black87,
+                color: Colors.white70,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
@@ -491,6 +499,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
           ),
           SizedBox(height: 6),
           customTextfield.customTextfield(
+            context: context,
             controller: nameController,
             title: "",
             validator: (val) => val == null || val.isEmpty ? 'Required' : null,
@@ -503,7 +512,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             child: Text(
               "Birth Date",
               style: TextStyle(
-                color: Colors.black87,
+                color: Colors.white70,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
@@ -514,6 +523,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             onTap: () => _selectDate(birthDateController),
             child: AbsorbPointer(
               child: customTextfield.customTextfield(
+                context: context,
                 controller: birthDateController,
                 title: "",
                 validator: (val) =>
@@ -531,7 +541,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             child: Text(
               "Contact Number",
               style: TextStyle(
-                color: Colors.black87,
+                color: Colors.white70,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
@@ -539,6 +549,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
           ),
           SizedBox(height: 6),
           customTextfield.customTextfield(
+            context: context,
             controller: contactController,
             title: "",
             keyboardType: TextInputType.phone,
@@ -552,7 +563,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             child: Text(
               "WhatsApp Number",
               style: TextStyle(
-                color: Colors.black87,
+                color: Colors.white70,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
@@ -564,6 +575,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             title: "",
             keyboardType: TextInputType.phone,
             validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+            context: context,
           ),
           SizedBox(height: fieldSpacing),
           // Plan Type
@@ -572,7 +584,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             child: Text(
               "Plan Type",
               style: TextStyle(
-                color: Colors.black87,
+                color: Colors.white70,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
@@ -606,7 +618,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                             child: Text(
                               "Start Date",
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: Colors.white70,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                               ),
@@ -627,6 +639,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                                     : null,
                                 hintText: 'Select Start Date',
                                 suffixIcon: const Icon(Icons.calendar_today),
+                                context: context,
                               ),
                             ),
                           ),
@@ -643,7 +656,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                             child: Text(
                               "End Date",
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: Colors.white70,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                               ),
@@ -652,6 +665,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                           SizedBox(height: 6),
                           AbsorbPointer(
                             child: customTextfield.customTextfield(
+                              context: context,
                               controller: endDateController,
                               title: "",
                               validator: (val) => val == null || val.isEmpty
@@ -674,7 +688,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                       child: Text(
                         "Start Date",
                         style: TextStyle(
-                          color: Colors.black87,
+                          color: Colors.white70,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
@@ -688,6 +702,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                       },
                       child: AbsorbPointer(
                         child: customTextfield.customTextfield(
+                          context: context,
                           controller: startDateController,
                           title: "",
                           validator: (val) =>
@@ -703,7 +718,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                       child: Text(
                         "End Date",
                         style: TextStyle(
-                          color: Colors.black87,
+                          color: Colors.white70,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
@@ -712,6 +727,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                     SizedBox(height: 6),
                     AbsorbPointer(
                       child: customTextfield.customTextfield(
+                        context: context,
                         controller: endDateController,
                         title: "",
                         validator: (val) =>
@@ -731,7 +747,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             child: Text(
               "Total Amount",
               style: TextStyle(
-                color: Colors.black87,
+                color: Colors.white70,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
@@ -739,6 +755,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
           ),
           SizedBox(height: 6),
           customTextfield.customTextfield(
+            context: context,
             controller: totalAmountController,
             title: "",
             keyboardType: TextInputType.number,
@@ -759,7 +776,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                             child: Text(
                               "Paid Amount",
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: Colors.white70,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                               ),
@@ -767,6 +784,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                           ),
                           SizedBox(height: 6),
                           customTextfield.customTextfield(
+                            context: context,
                             controller: paidAmountController,
                             title: "",
                             keyboardType: TextInputType.number,
@@ -786,7 +804,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                             child: Text(
                               "Remaining Amount",
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: Colors.white70,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                               ),
@@ -794,6 +812,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                           ),
                           SizedBox(height: 6),
                           customTextfield.customTextfield(
+                            context: context,
                             controller: remainingAmountController,
                             title: "",
                             keyboardType: TextInputType.number,
@@ -813,7 +832,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                       child: Text(
                         "Paid Amount",
                         style: TextStyle(
-                          color: Colors.black87,
+                          color: Colors.white70,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
@@ -821,6 +840,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                     ),
                     SizedBox(height: fieldSpacing),
                     customTextfield.customTextfield(
+                      context: context,
                       controller: paidAmountController,
                       title: "",
                       keyboardType: TextInputType.number,
@@ -833,7 +853,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                       child: Text(
                         "Remaining Amount",
                         style: TextStyle(
-                          color: Colors.black87,
+                          color: Colors.white70,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
@@ -841,6 +861,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
                     ),
                     SizedBox(height: 6),
                     customTextfield.customTextfield(
+                      context: context,
                       controller: remainingAmountController,
                       title: "",
                       keyboardType: TextInputType.number,
@@ -859,7 +880,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             child: Text(
               "Payment Date",
               style: TextStyle(
-                color: Colors.black87,
+                color: Colors.white70,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
@@ -870,6 +891,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             onTap: () => _selectDate(paymentDateController),
             child: AbsorbPointer(
               child: customTextfield.customTextfield(
+                context: context,
                 controller: paymentDateController,
                 title: "",
                 validator: (val) =>
@@ -887,7 +909,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
             child: Text(
               "Payment Status",
               style: TextStyle(
-                color: Colors.black87,
+                color: Colors.white70,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
@@ -904,6 +926,7 @@ class _GymClientFormFieldsState extends State<_GymClientFormFields> {
           SizedBox(height: isWeb ? 48 : (isTablet ? 36 : 24)),
 
           customButton.custButton(
+            context: context, // context is now required and first
             labelWidget: isLoading
                 ? const SizedBox(
                     width: 22,
@@ -1560,24 +1583,27 @@ class _FetchedClientDetailCard extends StatelessWidget {
   final VoidCallback onBack;
   const _FetchedClientDetailCard({required this.client, required this.onBack});
 
-  String formatDate(String date) {
+  String formatDate(dynamic date) {
     try {
-      if (date.contains('-')) {
-        final d = DateTime.parse(date);
-        return DateFormat('dd MMM yyyy').format(d);
-      } else if (date.contains('/')) {
-        final parts = date.split('/');
-        if (parts.length == 3) {
-          final d = DateTime(
-            int.parse(parts[2]),
-            int.parse(parts[1]),
-            int.parse(parts[0]),
-          );
-          return DateFormat('dd MMM yyyy').format(d);
+      if (date is DateTime) {
+        return DateFormat('dd MMM yyyy').format(date);
+      } else if (date is String) {
+        if (date.contains('-')) {
+          return DateFormat('dd MMM yyyy').format(DateTime.parse(date));
+        } else if (date.contains('/')) {
+          final parts = date.split('/');
+          if (parts.length == 3) {
+            final d = DateTime(
+              int.parse(parts[2]),
+              int.parse(parts[1]),
+              int.parse(parts[0]),
+            );
+            return DateFormat('dd MMM yyyy').format(d);
+          }
         }
       }
     } catch (_) {}
-    return date;
+    return date.toString(); // fallback
   }
 
   @override
@@ -1585,15 +1611,17 @@ class _FetchedClientDetailCard extends StatelessWidget {
     final joined = formatDate(client['startDate']);
     final end = formatDate(client['endDate']);
     final paymentDate = formatDate(client['paymentDate']);
+
     return Card(
       elevation: 0,
-      color: Colors.white,
+      color: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       child: Padding(
         padding: const EdgeInsets.all(22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            /// Header
             Row(
               children: [
                 CircleAvatar(
@@ -1612,7 +1640,7 @@ class _FetchedClientDetailCard extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 24,
-                      color: Colors.purple[800],
+                      color: Colors.white70,
                       letterSpacing: 1.1,
                     ),
                     maxLines: 2,
@@ -1621,125 +1649,71 @@ class _FetchedClientDetailCard extends StatelessWidget {
                 ),
               ],
             ),
+
             SizedBox(height: 18),
             Divider(thickness: 1.2, color: Colors.grey[200]),
-            SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(Icons.phone, color: Colors.purple[300], size: 20),
-                SizedBox(width: 10),
-                Text(
-                  "Contact: ",
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Expanded(
-                  child: Text(
-                    client['contact'] ?? '',
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ],
+            SizedBox(height: 18),
+
+            /// Contact Info
+            _infoRow(
+              icon: Icons.phone,
+              label: "Contact",
+              value: client['contact'],
+              iconColor: Colors.purple[300],
             ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                //lolo
-                Image.asset(
-                  'assets/images/whatsapp.png',
-                  height: 24,
-                  width: 24,
-                ),
-                SizedBox(width: 10),
-                Text(
-                  "WhatsApp: ",
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Expanded(
-                  child: Text(
-                    client['whatsapp'] ?? '',
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ],
+            _infoRowImage(
+              asset: 'assets/images/whatsapp.png',
+              label: "WhatsApp",
+              value: client['whatsapp'],
             ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Icon(Icons.calendar_today, color: Colors.blue[300], size: 18),
-                SizedBox(width: 10),
-                Text("Plan: ", style: TextStyle(fontWeight: FontWeight.w600)),
-                Expanded(
-                  child: Text(
-                    client['planType'] ?? '',
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ],
+            _infoRow(
+              icon: Icons.calendar_today,
+              label: "Plan",
+              value: client['planType'],
+              iconColor: Colors.blue[300],
             ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Icon(Icons.date_range, color: Colors.orange[300], size: 18),
-                SizedBox(width: 10),
-                Text("Start: ", style: TextStyle(fontWeight: FontWeight.w600)),
-                Text(joined, style: TextStyle(fontWeight: FontWeight.w500)),
-                SizedBox(width: 16),
-                Text("End: ", style: TextStyle(fontWeight: FontWeight.w600)),
-                Text(end, style: TextStyle(fontWeight: FontWeight.w500)),
-              ],
+            _dualLabelRow(
+              icon: Icons.date_range,
+              firstLabel: "Start",
+              firstValue: joined,
+              secondLabel: "End",
+              secondValue: end,
+              iconColor: Colors.orange[300],
             ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Icon(Icons.attach_money, color: Colors.teal[400], size: 20),
-                SizedBox(width: 10),
-                Text("Total: ", style: TextStyle(fontWeight: FontWeight.w600)),
-                Text(
-                  client['totalAmount'] ?? '',
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-                SizedBox(width: 12),
-                Text("Paid: ", style: TextStyle(fontWeight: FontWeight.w600)),
-                Text(
-                  client['paidAmount'] ?? '',
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-                SizedBox(width: 12),
-                Text("Remain: ", style: TextStyle(fontWeight: FontWeight.w600)),
-                Text(
-                  client['remainingAmount'] ?? '',
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ],
+            _infoRow(
+              icon: Icons.attach_money,
+              label: "Total",
+              value: client['totalAmount'],
+              iconColor: Colors.teal[400],
             ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Icon(Icons.payment, color: Colors.deepPurple[300], size: 20),
-                SizedBox(width: 10),
-                Text(
-                  "Payment Date: ",
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  paymentDate,
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ],
+            _infoRow(
+              icon: Icons.attach_money,
+              label: "Paid",
+              value: client['paidAmount'],
+              iconColor: Colors.teal[400],
             ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Icon(Icons.verified, color: Colors.blueGrey[400], size: 20),
-                SizedBox(width: 10),
-                Text("Status: ", style: TextStyle(fontWeight: FontWeight.w600)),
-                Text(
-                  client['paymentStatus'] ?? '',
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ],
+            _infoRow(
+              icon: Icons.attach_money,
+              label: "Remain",
+              value: client['remainingAmount'],
+              iconColor: Colors.teal[400],
             ),
-            SizedBox(height: 24),
+            _infoRow(
+              icon: Icons.payment,
+              label: "Payment Date",
+              value: paymentDate,
+              iconColor: Colors.deepPurple[300],
+            ),
+            _infoRow(
+              icon: Icons.verified,
+              label: "Status",
+              value: client['paymentStatus'],
+              iconColor: Colors.blueGrey[400],
+            ),
+
+            SizedBox(height: 30),
+
+            /// Back Button
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton.icon(
@@ -1768,107 +1742,134 @@ class _FetchedClientDetailCard extends StatelessWidget {
       ),
     );
   }
+
+  /// Generic info row with Icon + Label + Value
+  Widget _infoRow({
+    required IconData icon,
+    required String label,
+    required String? value,
+    Color? iconColor,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: iconColor ?? Colors.grey),
+          SizedBox(width: 12),
+          Text("$label: ", style: TextStyle(fontWeight: FontWeight.w600)),
+          Expanded(
+            child: Text(
+              value ?? '',
+              style: TextStyle(fontWeight: FontWeight.w500),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Info row with custom image instead of icon (for WhatsApp)
+  Widget _infoRowImage({
+    required String asset,
+    required String label,
+    required String? value,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        children: [
+          Image.asset(asset, height: 22, width: 22),
+          SizedBox(width: 12),
+          Text("$label: ", style: TextStyle(fontWeight: FontWeight.w600)),
+          Expanded(
+            child: Text(
+              value ?? '',
+              style: TextStyle(fontWeight: FontWeight.w500),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Dual value row (for Start and End dates)
+  Widget _dualLabelRow({
+    required IconData icon,
+    required String firstLabel,
+    required String? firstValue,
+    required String secondLabel,
+    required String? secondValue,
+    Color? iconColor,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: iconColor ?? Colors.grey),
+          SizedBox(width: 12),
+          Expanded(
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 4,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                    children: [
+                      TextSpan(
+                        text: "$firstLabel: ",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      TextSpan(
+                        text: firstValue ?? '',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+                RichText(
+                  text: TextSpan(
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                    children: [
+                      TextSpan(
+                        text: "$secondLabel: ",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      TextSpan(
+                        text: secondValue ?? '',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _WebSearchClientPanel extends StatefulWidget {
+class WebSearchClientPanel extends StatefulWidget {
   final VoidCallback? onClose;
   final Function(dynamic)? onClientTap;
   final dynamic selectedClient;
-  const _WebSearchClientPanel({
+  const WebSearchClientPanel({
     this.onClose,
     this.onClientTap,
     this.selectedClient,
   });
 
   @override
-  State<_WebSearchClientPanel> createState() => _WebSearchClientPanelState();
+  State<WebSearchClientPanel> createState() => _WebSearchClientPanelState();
 }
 
-class _WebSearchClientPanelState extends State<_WebSearchClientPanel> {
+class _WebSearchClientPanelState extends State<WebSearchClientPanel> {
   final searchController = TextEditingController();
-  dynamic selectedClient;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedClient = widget.selectedClient;
-  }
-
-  @override
-  void didUpdateWidget(covariant _WebSearchClientPanel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.selectedClient != oldWidget.selectedClient) {
-      setState(() {
-        selectedClient = widget.selectedClient;
-      });
-    }
-  }
-
-  String formatDateForList(String date) {
-    try {
-      if (date.contains('-')) {
-        final d = DateTime.parse(date);
-        return DateFormat('dd MMM yyyy').format(d);
-      } else if (date.contains('/')) {
-        final parts = date.split('/');
-        if (parts.length == 3) {
-          final d = DateTime(
-            int.parse(parts[2]),
-            int.parse(parts[1]),
-            int.parse(parts[0]),
-          );
-          return DateFormat('dd MMM yyyy').format(d);
-        }
-      }
-    } catch (_) {}
-    return date;
-  }
-
-  int getRemainingDays(String startDate, String endDate) {
-    try {
-      DateTime start, end;
-      if (startDate.contains('-')) {
-        start = DateTime.parse(startDate);
-      } else if (startDate.contains('/')) {
-        final parts = startDate.split('/');
-        start = DateTime(
-          int.parse(parts[2]),
-          int.parse(parts[1]),
-          int.parse(parts[0]),
-        );
-      } else {
-        return 0;
-      }
-      if (endDate.contains('-')) {
-        end = DateTime.parse(endDate);
-      } else if (endDate.contains('/')) {
-        final parts = endDate.split('/');
-        end = DateTime(
-          int.parse(parts[2]),
-          int.parse(parts[1]),
-          int.parse(parts[0]),
-        );
-      } else {
-        return 0;
-      }
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      final startDay = DateTime(start.year, start.month, start.day);
-      final endDay = DateTime(end.year, end.month, end.day);
-
-      if (today.isBefore(startDay)) {
-        final totalDays = endDay.difference(startDay).inDays;
-        return totalDays >= 0 ? totalDays : 0;
-      } else if (today.isAfter(endDay)) {
-        return 0;
-      } else {
-        final remain = endDay.difference(today).inDays + 1;
-        return remain >= 0 ? remain : 0;
-      }
-    } catch (_) {
-      return 0;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1876,249 +1877,258 @@ class _WebSearchClientPanelState extends State<_WebSearchClientPanel> {
     final auth = FirebaseAuth.instance;
     final firebaseFirestore = FirebaseFirestore.instance.collection('Admin');
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double maxPanelWidth = constraints.maxWidth < 500
-            ? constraints.maxWidth
-            : 500;
-        return Card(
-          elevation: 4,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-          child: Container(
-            color: Colors.white,
-            width: maxPanelWidth,
-            constraints: BoxConstraints(maxWidth: maxPanelWidth, minWidth: 320),
+    return Container(
+      color: Theme.of(context).cardColor,
+      child: Column(
+        children: [
+          // Search bar and close button
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-            child: selectedClient == null
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Search Client",
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 20,
-                                letterSpacing: 0.2,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.close),
-                            onPressed: widget.onClose,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Material(
-                        elevation: 1,
-                        borderRadius: BorderRadius.circular(12),
-                        child: TextField(
-                          controller: searchController,
-                          keyboardType: TextInputType.text,
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: Colors.grey.shade600,
-                            ),
-                            hintText: "Type client name or number...",
-                            hintStyle: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontSize: 14,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey.shade100,
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 0,
-                              horizontal: 0,
-                            ),
-                          ),
-                          style: TextStyle(fontSize: 15),
-                          onChanged: (_) => setState(() {}),
-                        ),
-                      ),
-                      SizedBox(height: 18),
-                      Text(
-                        "Clients",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                          color: Colors.black.withOpacity(.7),
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      // Responsive height for list, avoid infinite size
-                      Expanded(
-                        child: StreamBuilder(
-                          stream: firebaseFirestore
-                              .doc(auth.currentUser!.uid)
-                              .collection('ClientCollection')
-                              .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            } else if (snapshot == null || !snapshot.hasData) {
-                              return Center(child: Text('No Data Found'));
-                            } else if (snapshot.hasError) {
-                              return Center(
-                                child: Text('❌ Error: ${snapshot.error}'),
-                              );
-                            }
-                            var clients = snapshot.hasData
-                                ? snapshot.data!.docs
-                                : [];
-                            final query = searchController.text
-                                .trim()
-                                .toLowerCase();
-                            final filtered = query.isEmpty
-                                ? clients
-                                : clients.where((c) {
-                                    final name = (c['name'] ?? '')
-                                        .toString()
-                                        .toLowerCase();
-                                    final contact = (c['contact'] ?? '')
-                                        .toString()
-                                        .toLowerCase();
-                                    final whatsapp = (c['whatsapp'] ?? '')
-                                        .toString()
-                                        .toLowerCase();
-                                    // Search by name, contact, or whatsapp number
-                                    return name.contains(query) ||
-                                        contact.contains(query);
-                                  }).toList();
-                            if (filtered.isEmpty) {
-                              return Center(child: Text('No clients found.'));
-                            }
-                            return ListView.builder(
-                              itemCount: filtered.length,
-                              itemBuilder: (context, index) {
-                                var client = filtered[index];
-                                final joined = formatDateForList(
-                                  client['startDate'],
-                                );
-                                final end = formatDateForList(
-                                  client['endDate'],
-                                );
-                                final remain = getRemainingDays(
-                                  client['startDate'],
-                                  client['endDate'],
-                                );
-                                return Container(
-                                  width: double.infinity,
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade50,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.grey.shade200,
-                                    ),
-                                  ),
-                                  child: ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundColor: Colors.purple.shade100,
-                                      child: Icon(
-                                        Icons.person,
-                                        color: Colors.purple.shade700,
-                                      ),
-                                    ),
-                                    title: Text(
-                                      client['name'],
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 15,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    subtitle: Padding(
-                                      padding: const EdgeInsets.only(top: 2.0),
-                                      child: Text(
-                                        'Remain: $remain days\nJoined: $joined | End: $end',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey.shade700,
-                                          height: 1.3,
-                                        ),
-                                      ),
-                                    ),
-                                    trailing: Icon(
-                                      Icons.chevron_right,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                    contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 6,
-                                    ),
-                                    onTap: () {
-                                      if (widget.onClientTap != null) {
-                                        widget.onClientTap!(client);
-                                      }
-                                    },
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Client Details",
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 20,
-                                letterSpacing: 0.2,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.arrow_back),
-                            onPressed: () {
-                              setState(() {
-                                selectedClient = null;
-                              });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.close),
-                            onPressed: widget.onClose,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: _FetchedClientDetailCard(
-                            client: selectedClient,
-                            onBack: () {
-                              setState(() {
-                                selectedClient = null;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    "Search Client",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 20,
+                      letterSpacing: 0.2,
+                    ),
                   ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.close,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
+                  onPressed: widget.onClose,
+                ),
+              ],
+            ),
           ),
-        );
-      },
+          // Search field
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: Material(
+              elevation: 1,
+              borderRadius: BorderRadius.circular(12),
+              color: Theme.of(context).cardColor,
+              child: TextField(
+                controller: searchController,
+                keyboardType: TextInputType.text,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                decoration: InputDecoration(
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: Theme.of(context).iconTheme.color?.withOpacity(0.7),
+                  ),
+                  hintText: "Type client name or number...",
+                  hintStyle: TextStyle(
+                    color: Theme.of(context).hintColor,
+                    fontSize: 14,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 0,
+                    horizontal: 0,
+                  ),
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: Text(
+              "Clients",
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(.7),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // List of clients
+          Expanded(
+            child: StreamBuilder(
+              stream: firebaseFirestore
+                  .doc(auth.currentUser!.uid)
+                  .collection('ClientCollection')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                String formatDate(dynamic date) {
+                  try {
+                    if (date is DateTime) {
+                      return DateFormat('dd MMM yyyy').format(date);
+                    } else if (date is String) {
+                      if (date.contains('-')) {
+                        return DateFormat(
+                          'dd MMM yyyy',
+                        ).format(DateTime.parse(date));
+                      } else if (date.contains('/')) {
+                        final parts = date.split('/');
+                        if (parts.length == 3) {
+                          final d = DateTime(
+                            int.parse(parts[2]),
+                            int.parse(parts[1]),
+                            int.parse(parts[0]),
+                          );
+                          return DateFormat('dd MMM yyyy').format(d);
+                        }
+                      }
+                    }
+                  } catch (_) {}
+                  return date.toString(); // fallback
+                }
+
+                int calculateRemainingDays(dynamic endDate) {
+                  try {
+                    DateTime end;
+                    if (endDate is DateTime) {
+                      end = endDate;
+                    } else {
+                      end = DateTime.parse(endDate.toString());
+                    }
+                    final now = DateTime.now();
+                    return end.difference(now).inDays;
+                  } catch (_) {
+                    return 0;
+                  }
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot == null || !snapshot.hasData) {
+                  return Center(
+                    child: Text(
+                      'No Data Found',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      '❌ Error: ${snapshot.error}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  );
+                }
+                var clients = snapshot.hasData ? snapshot.data!.docs : [];
+                final query = searchController.text.trim().toLowerCase();
+                final filtered = query.isEmpty
+                    ? clients
+                    : clients.where((c) {
+                        final name = (c['name'] ?? '').toString().toLowerCase();
+                        final contact = (c['contact'] ?? '')
+                            .toString()
+                            .toLowerCase();
+                        final whatsapp = (c['whatsapp'] ?? '')
+                            .toString()
+                            .toLowerCase();
+                        // Search by name, contact, or whatsapp number
+                        return name.contains(query) || contact.contains(query);
+                      }).toList();
+                if (filtered.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No clients found.',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    var client = filtered[index];
+                    final joined = formatDate(client['startDate']);
+                    final end = formatDate(client['endDate']);
+                    final remaining = calculateRemainingDays(client['endDate']);
+
+                    return Container(
+                      margin: const EdgeInsets.only(
+                        bottom: 12,
+                        left: 8,
+                        right: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor,
+                        ),
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.purple.shade100,
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.purple.shade700,
+                          ),
+                        ),
+                        title: Text(
+                          client['name'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 2.0),
+                          child: Text(
+                            "Remaining: ${remaining >= 0 ? '$remaining days' : 'Expired'} \nJoined: $joined | End: $end\n",
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          color: Theme.of(
+                            context,
+                          ).iconTheme.color?.withOpacity(0.5),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        onTap: () {
+                          if (widget.onClientTap != null) {
+                            widget.onClientTap!(client);
+                          }
+                        },
+                        selected:
+                            widget.selectedClient != null &&
+                            widget.selectedClient['id'] == client['id'],
+                        selectedTileColor: Theme.of(
+                          context,
+                        ).primaryColor.withOpacity(0.08),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

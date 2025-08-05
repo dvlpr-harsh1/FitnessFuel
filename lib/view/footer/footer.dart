@@ -42,7 +42,7 @@ class Footer extends StatelessWidget {
       ),
       width: mq.width,
       decoration: BoxDecoration(
-        color: MyColor.background,
+        color: MyColor.black,
         border: Border(top: BorderSide(color: MyColor.borderColor, width: 2)),
       ),
       child: Row(

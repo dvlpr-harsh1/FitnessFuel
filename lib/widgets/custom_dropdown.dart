@@ -15,9 +15,9 @@ class CustomDropdownfield {
           Text(
             title,
             style: const TextStyle(
-              color: Colors.black87,
+              color: Colors.white,
               fontWeight: FontWeight.w600,
-              fontSize: 16,
+              fontSize: 15,
             ),
           ),
         if (title.isNotEmpty) const SizedBox(height: 6),
@@ -29,7 +29,9 @@ class CustomDropdownfield {
                   value: item,
                   child: Text(
                     item,
-                    style: const TextStyle(color: Colors.black87),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
               )
@@ -39,29 +41,32 @@ class CustomDropdownfield {
           },
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Theme.of(context).cardColor,
             hintText: title.isNotEmpty ? title : null,
-            hintStyle: const TextStyle(color: Colors.black38),
+            hintStyle: TextStyle(color: Theme.of(context).hintColor),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black26, width: 1.5),
+              borderSide: const BorderSide(color: Colors.white24, width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black26, width: 1.5),
+              borderSide: const BorderSide(color: Colors.white24, width: 1.5),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black54, width: 2),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 2),
             ),
             contentPadding: const EdgeInsets.symmetric(
               vertical: 16,
               horizontal: 14,
             ),
           ),
-          iconEnabledColor: Colors.black87,
-          dropdownColor: Colors.white,
-          style: const TextStyle(color: Colors.black87, fontSize: 16),
+          iconEnabledColor: Theme.of(context).iconTheme.color,
+          dropdownColor: Theme.of(context).cardColor,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 16,
+          ),
         ),
       ],
     );

@@ -32,7 +32,81 @@ class MyApp extends StatelessWidget {
     mq = MediaQuery.of(context).size;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.themeData,
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Colors.black,
+        primaryColor: Colors.redAccent,
+        colorScheme: ColorScheme.dark(
+          primary: Colors.redAccent,
+          secondary: Colors.purpleAccent,
+          background: Colors.black,
+          surface: Colors.grey[900]!,
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+          onBackground: Colors.white,
+          onSurface: Colors.white,
+          error: Colors.redAccent,
+          onError: Colors.white,
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: IconThemeData(color: Colors.white),
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.white70),
+          bodySmall: TextStyle(color: Colors.white60),
+          titleLarge: TextStyle(color: Colors.white),
+          titleMedium: TextStyle(color: Colors.white70),
+          titleSmall: TextStyle(color: Colors.white60),
+          labelLarge: TextStyle(color: Colors.white),
+          labelMedium: TextStyle(color: Colors.white70),
+          labelSmall: TextStyle(color: Colors.white60),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.grey[900],
+          hintStyle: TextStyle(color: Colors.white38),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.white24),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.white24),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.redAccent, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.redAccent, width: 1.2),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.redAccent, width: 2),
+          ),
+          contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+        ),
+        iconTheme: IconThemeData(color: Colors.white),
+        snackBarTheme: SnackBarThemeData(
+          backgroundColor: Colors.grey[900],
+          contentTextStyle: TextStyle(color: Colors.white),
+          actionTextColor: Colors.redAccent,
+        ),
+        dialogBackgroundColor: Colors.grey[900],
+        cardColor: Colors.grey[900],
+        dividerColor: Colors.white12,
+        // ...add more as needed...
+      ),
       home: SplashPage(),
     );
   }

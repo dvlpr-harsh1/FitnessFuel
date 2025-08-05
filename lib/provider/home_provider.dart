@@ -77,7 +77,9 @@ class HomeProvider extends ChangeNotifier {
       );
 
       // Generate PDF and get downloadUrl
-      final downloadUrl = await PdfGeneration().generateAndSendReceipt(userCred);
+      final downloadUrl = await PdfGeneration().generateAndSendReceipt(
+        userCred,
+      );
 
       // Update client with downloadUrl
       final clientWithPdf = userCred..pdfUrl = downloadUrl;
