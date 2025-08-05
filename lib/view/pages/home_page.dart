@@ -253,9 +253,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       ),
       body: Stack(
         children: [
-          // Main content (form etc.)
-          Expanded(
-            flex: 2,
+          Positioned.fill(
             child: SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.symmetric(
@@ -283,37 +281,36 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               ),
             ),
           ),
-          // Example threshold for tablet: 800 pixels
+
+          // ✅ For web/tablet split panel view
           if (kIsWeb && mq.width > 800)
             Row(
               children: [
-                // Search panel (right side)
-                if (kIsWeb)
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 350),
-                    curve: Curves.easeInOut,
-                    width: showSearchPanel ? 500 : 0,
-                    child: showSearchPanel
-                        ? Material(
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 350),
+                  curve: Curves.easeInOut,
+                  width: showSearchPanel ? 500 : 0,
+                  child: showSearchPanel
+                      ? Material(
+                          color: Colors.transparent,
+                          child: Container(
                             color: Colors.transparent,
-                            child: Container(
-                              color: Colors.transparent,
-                              child: WebSearchClientPanel(
-                                onClose: () {
-                                  toggleSearchPanel();
-                                },
-                                onClientTap: (client) {
-                                  setState(() {
-                                    selectedClient = client;
-                                  });
-                                },
-                                selectedClient: selectedClient,
-                              ),
+                            child: WebSearchClientPanel(
+                              onClose: toggleSearchPanel,
+                              onClientTap: (client) {
+                                setState(() {
+                                  selectedClient = client;
+                                });
+                              },
+                              selectedClient: selectedClient,
                             ),
-                          )
-                        : null,
-                  ),
-                if (kIsWeb && showSearchPanel && selectedClient != null)
+                          ),
+                        )
+                      : null,
+                ),
+
+                // ✅ Right pane (client detail)
+                if (showSearchPanel && selectedClient != null)
                   Expanded(
                     child: Container(
                       height: double.infinity,
