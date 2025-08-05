@@ -1066,6 +1066,7 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
       } else {
         return 0;
       }
+
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
       final startDay = DateTime(start.year, start.month, start.day);
@@ -1105,7 +1106,9 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                         child: Text(
                           "Search Client",
                           style: TextStyle(
-                            color: Colors.black87,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(.7),
                             fontWeight: FontWeight.w700,
                             fontSize: 20,
                             letterSpacing: 0.2,
@@ -1122,17 +1125,20 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                   Material(
                     elevation: 1,
                     borderRadius: BorderRadius.circular(12),
+                    color: Theme.of(context).cardColor,
                     child: TextField(
                       controller: searchController,
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
                         prefixIcon: Icon(
                           Icons.search,
-                          color: Colors.grey.shade600,
+                          color: Theme.of(
+                            context,
+                          ).iconTheme.color?.withOpacity(0.7),
                         ),
                         hintText: "Type client name or number...",
                         hintStyle: TextStyle(
-                          color: Colors.grey.shade500,
+                          color: Theme.of(context).hintColor,
                           fontSize: 14,
                         ),
                         border: OutlineInputBorder(
@@ -1140,13 +1146,16 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                           borderSide: BorderSide.none,
                         ),
                         filled: true,
-                        fillColor: Colors.grey.shade100,
+                        fillColor: Theme.of(context).cardColor,
                         contentPadding: EdgeInsets.symmetric(
                           vertical: 0,
                           horizontal: 0,
                         ),
                       ),
-                      style: TextStyle(fontSize: 15),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                       onChanged: (_) => setState(() {}),
                     ),
                   ),
@@ -1156,7 +1165,9 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
-                      color: Colors.black.withOpacity(.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(.7),
                     ),
                   ),
                   SizedBox(height: 8),
@@ -1177,10 +1188,12 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                             child: Text('❌ Error: ${snapshot.error}'),
                           );
                         }
+
                         var clients = snapshot.data!.docs;
                         final query = searchController.text
                             .trim()
                             .toLowerCase();
+
                         final filtered = query.isEmpty
                             ? clients
                             : clients.where((c) {
@@ -1190,14 +1203,19 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                                 final contact = (c['contact'] ?? '')
                                     .toString()
                                     .toLowerCase();
+                                final whatsapp = (c['whatsapp'] ?? '')
+                                    .toString()
+                                    .toLowerCase();
 
-                                // Search by name, contact, or whatsapp number
                                 return name.contains(query) ||
-                                    contact.contains(query);
+                                    contact.contains(query) ||
+                                    whatsapp.contains(query);
                               }).toList();
+
                         if (filtered.isEmpty) {
                           return Center(child: Text('No clients found.'));
                         }
+
                         return ListView.builder(
                           itemCount: filtered.length,
                           itemBuilder: (context, index) {
@@ -1210,12 +1228,15 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                               client['startDate'],
                               client['endDate'],
                             );
+
                             return Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade50,
+                                color: Theme.of(context).cardColor,
                                 borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Colors.grey.shade200),
+                                border: Border.all(
+                                  color: Theme.of(context).dividerColor,
+                                ),
                               ),
                               child: ListTile(
                                 leading: CircleAvatar(
@@ -1230,7 +1251,9 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
-                                    color: Colors.black87,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                   ),
                                 ),
                                 subtitle: Padding(
@@ -1239,14 +1262,18 @@ class _SearchClientDialogState extends State<_SearchClientDialog> {
                                     'Remain: $remain days\nJoined: $joined | End: $end',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey.shade700,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface.withOpacity(0.7),
                                       height: 1.3,
                                     ),
                                   ),
                                 ),
                                 trailing: Icon(
                                   Icons.chevron_right,
-                                  color: Colors.grey.shade400,
+                                  color: Theme.of(
+                                    context,
+                                  ).iconTheme.color?.withOpacity(0.5),
                                 ),
                                 contentPadding: EdgeInsets.symmetric(
                                   horizontal: 10,
@@ -1387,7 +1414,7 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
                         child: Text(
                           "Search Client",
                           style: TextStyle(
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w700,
                             fontSize: 18,
                             letterSpacing: 0.2,
@@ -1422,7 +1449,7 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
                           borderSide: BorderSide.none,
                         ),
                         filled: true,
-                        fillColor: Colors.grey.shade100,
+                        fillColor: Theme.of(context).cardColor,
                         contentPadding: EdgeInsets.symmetric(
                           vertical: 0,
                           horizontal: 0,
@@ -1438,7 +1465,9 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
-                      color: Colors.black.withOpacity(.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(.7),
                     ),
                   ),
                   SizedBox(height: 8),
@@ -1498,9 +1527,11 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
                             return Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade50,
+                                color: Theme.of(context).cardColor,
                                 borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Colors.grey.shade200),
+                                border: Border.all(
+                                  color: Theme.of(context).dividerColor,
+                                ),
                               ),
                               child: ListTile(
                                 leading: CircleAvatar(
@@ -1515,7 +1546,9 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
-                                    color: Colors.black87,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                   ),
                                 ),
                                 subtitle: Padding(
@@ -1524,7 +1557,7 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
                                     'Remain: $remain days\nJoined: $joined | End: $end',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey.shade700,
+                                      color: Colors.white70,
                                       height: 1.3,
                                     ),
                                   ),
