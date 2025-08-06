@@ -1914,12 +1914,11 @@ class _FetchedClientDetailCard extends StatelessWidget {
           Image.asset(asset, height: 22, width: 22),
           SizedBox(width: 12),
           Text("$label: ", style: TextStyle(fontWeight: FontWeight.w600)),
-          Expanded(
-            child: Text(
-              value ?? '',
-              style: TextStyle(fontWeight: FontWeight.w500),
-              overflow: TextOverflow.ellipsis,
-            ),
+          Spacer(),
+          Text(
+            value ?? '',
+            style: TextStyle(fontWeight: FontWeight.w500),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
