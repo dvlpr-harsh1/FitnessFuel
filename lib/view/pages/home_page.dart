@@ -1799,13 +1799,18 @@ class _FetchedClientDetailCard extends StatelessWidget {
               value: client['planType'],
               iconColor: Colors.blue[300],
             ),
-            _dualLabelRow(
+            _infoRow(
               icon: Icons.date_range,
-              firstLabel: "Start",
-              firstValue: joined,
-              secondLabel: "End",
-              secondValue: end,
+              label: "Start",
+              value: joined,
               iconColor: Colors.orange[300],
+            ),
+            _infoRow(
+              icon: Icons.date_range,
+
+              label: "End",
+              value: end,
+              iconColor: Colors.redAccent,
             ),
             _infoRow(
               icon: Icons.attach_money,
@@ -1885,12 +1890,11 @@ class _FetchedClientDetailCard extends StatelessWidget {
           Icon(icon, size: 20, color: iconColor ?? Colors.grey),
           SizedBox(width: 12),
           Text("$label: ", style: TextStyle(fontWeight: FontWeight.w600)),
-          Expanded(
-            child: Text(
-              value ?? '',
-              style: TextStyle(fontWeight: FontWeight.w500),
-              overflow: TextOverflow.ellipsis,
-            ),
+          Spacer(),
+          Text(
+            value ?? '',
+            style: TextStyle(fontWeight: FontWeight.w500),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -1923,62 +1927,62 @@ class _FetchedClientDetailCard extends StatelessWidget {
   }
 
   /// Dual value row (for Start and End dates)
-  Widget _dualLabelRow({
-    required IconData icon,
-    required String firstLabel,
-    required String? firstValue,
-    required String secondLabel,
-    required String? secondValue,
-    Color? iconColor,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: iconColor ?? Colors.grey),
-          SizedBox(width: 12),
-          Expanded(
-            child: Wrap(
-              spacing: 16,
-              runSpacing: 4,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                    children: [
-                      TextSpan(
-                        text: "$firstLabel: ",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      TextSpan(
-                        text: firstValue ?? '',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
-                ),
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                    children: [
-                      TextSpan(
-                        text: "$secondLabel: ",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      TextSpan(
-                        text: secondValue ?? '',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _dualLabelRow({
+  //   required IconData icon,
+  //   required String firstLabel,
+  //   required String? firstValue,
+  //   required String secondLabel,
+  //   required String? secondValue,
+  //   Color? iconColor,
+  // }) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 14),
+  //     child: Row(
+  //       children: [
+  //         Icon(icon, size: 20, color: iconColor ?? Colors.grey),
+  //         SizedBox(width: 12),
+  //         Expanded(
+  //           child: Wrap(
+  //             spacing: 16,
+  //             runSpacing: 4,
+  //             children: [
+  //               RichText(
+  //                 text: TextSpan(
+  //                   style: TextStyle(color: Colors.grey, fontSize: 16),
+  //                   children: [
+  //                     TextSpan(
+  //                       text: "$firstLabel: ",
+  //                       style: TextStyle(fontWeight: FontWeight.w600),
+  //                     ),
+  //                     TextSpan(
+  //                       text: firstValue ?? '',
+  //                       style: TextStyle(fontWeight: FontWeight.w500),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               RichText(
+  //                 text: TextSpan(
+  //                   style: TextStyle(color: Colors.grey, fontSize: 16),
+  //                   children: [
+  //                     TextSpan(
+  //                       text: "$secondLabel: ",
+  //                       style: TextStyle(fontWeight: FontWeight.w600),
+  //                     ),
+  //                     TextSpan(
+  //                       text: secondValue ?? '',
+  //                       style: TextStyle(fontWeight: FontWeight.w500),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
 
 class WebSearchClientPanel extends StatefulWidget {
