@@ -2053,6 +2053,7 @@ class _WebSearchClientPanelState extends State<WebSearchClientPanel> {
                     ),
                   );
                 }
+
                 var clients = snapshot.hasData ? snapshot.data!.docs : [];
                 final query = searchController.text.trim().toLowerCase();
                 final filtered = query.isEmpty
@@ -2068,84 +2069,188 @@ class _WebSearchClientPanelState extends State<WebSearchClientPanel> {
                         // Search by name, contact, or whatsapp number
                         return name.contains(query) || contact.contains(query);
                       }).toList();
-                if (filtered.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No clients found.',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  );
-                }
-                return ListView.builder(
-                  itemCount: filtered.length,
-                  itemBuilder: (context, index) {
-                    var client = filtered[index];
-                    final joined = formatDate(client['startDate']);
-                    final end = formatDate(client['endDate']);
-                    final remaining = calculateRemainingDays(client['endDate']);
 
-                    return Container(
-                      margin: const EdgeInsets.only(
-                        bottom: 12,
-                        left: 8,
-                        right: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Theme.of(context).dividerColor,
-                        ),
-                      ),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.red.shade100,
-                          child: Icon(Icons.person, color: Colors.red.shade700),
-                        ),
-                        title: Text(
-                          client['name'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 2.0),
-                          child: Text(
-                            "Remaining: ${remaining >= 0 ? '$remaining days' : 'Expired'} \nJoined: $joined | End: $end\n",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 13,
+                // Get the current date (for current month/year comparison)
+                final now = DateTime.now();
+                final currentYear = now.year;
+                final currentMonth = now.month;
+
+                // Calculate how many clients were added in the current month
+                final monthlyAddedClients = filtered.where((client) {
+                  try {
+                    final startDate = client['startDate'];
+
+                    // Ensure startDate is in DateTime format
+                    DateTime startDateObj;
+
+                    // Handle both String and DateTime formats for 'startDate'
+                    if (startDate is String) {
+                      // Try parsing as String (e.g., 'dd/MM/yyyy' format)
+                      final parts = startDate.split('/');
+                      if (parts.length == 3) {
+                        startDateObj = DateTime(
+                          int.parse(parts[2]), // Year
+                          int.parse(parts[1]), // Month
+                          int.parse(parts[0]), // Day
+                        );
+                      } else {
+                        // Try parsing it as a standard ISO string (e.g., "2022-01-01")
+                        startDateObj = DateTime.parse(startDate);
+                      }
+                    } else if (startDate is DateTime) {
+                      startDateObj = startDate;
+                    } else {
+                      return false; // Invalid date
+                    }
+
+                    // Check if the startDate is in the current month and year
+                    return startDateObj.year == currentYear &&
+                        startDateObj.month == currentMonth;
+                  } catch (_) {
+                    return false;
+                  }
+                }).toList();
+
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              alignment: Alignment.center,
+                              height: 70,
+                              margin: EdgeInsets.symmetric(horizontal: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: Theme.of(context).dividerColor,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Monthly added clients"),
+                                  Text(
+                                    "${monthlyAddedClients.length}",
+                                  ), // Show count of clients added this month
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          color: Theme.of(
-                            context,
-                          ).iconTheme.color?.withOpacity(0.5),
-                        ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        onTap: () {
-                          if (widget.onClientTap != null) {
-                            widget.onClientTap!(client);
-                          }
-                        },
-                        selected:
-                            widget.selectedClient != null &&
-                            widget.selectedClient['id'] == client['id'],
-                        selectedTileColor: Theme.of(
-                          context,
-                        ).primaryColor.withOpacity(0.08),
+                          Expanded(
+                            child: Container(
+                              alignment: Alignment.center,
+                              height: 70,
+                              margin: EdgeInsets.symmetric(horizontal: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: Theme.of(context).dividerColor,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Total Clients"),
+                                  Text(
+                                    "${filtered.length}",
+                                  ), // Show total clients in list
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    );
-                  },
+                      SizedBox(height: 12),
+                      Divider(
+                        color: Theme.of(context).dividerColor,
+                        thickness: 1.2,
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: filtered
+                              .length, // Show all filtered clients in list
+                          itemBuilder: (context, index) {
+                            var client = filtered[index];
+                            final joined = formatDate(client['startDate']);
+                            final end = formatDate(client['endDate']);
+                            final remaining = calculateRemainingDays(
+                              client['endDate'],
+                            );
+
+                            return Container(
+                              margin: const EdgeInsets.only(
+                                bottom: 12,
+                                left: 8,
+                                right: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: Theme.of(context).dividerColor,
+                                ),
+                              ),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.red.shade100,
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Colors.red.shade700,
+                                  ),
+                                ),
+                                title: Text(
+                                  client['name'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                                subtitle: Padding(
+                                  padding: const EdgeInsets.only(top: 2.0),
+                                  child: Text(
+                                    "Remaining: ${remaining >= 0 ? '$remaining days' : 'Expired'} \nJoined: $joined | End: $end\n",
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  color: Theme.of(
+                                    context,
+                                  ).iconTheme.color?.withOpacity(0.5),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                onTap: () {
+                                  if (widget.onClientTap != null) {
+                                    widget.onClientTap!(client);
+                                  }
+                                },
+                                selected:
+                                    widget.selectedClient != null &&
+                                    widget.selectedClient['id'] == client['id'],
+                                selectedTileColor: Theme.of(
+                                  context,
+                                ).primaryColor.withOpacity(0.08),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
