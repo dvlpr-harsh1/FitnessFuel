@@ -71,6 +71,9 @@ class HomeProvider extends ChangeNotifier {
             'paymentDate': DateTime.now().toIso8601String(),
           });
 
+      // Add a small delay to ensure Firestore has time to update
+      await Future.delayed(Duration(milliseconds: 300));
+      
       notifyListeners();
       return 'Success';
     } catch (e) {

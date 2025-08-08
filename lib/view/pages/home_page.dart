@@ -1422,22 +1422,34 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
       final auth = FirebaseAuth.instance;
       final firestore = FirebaseFirestore.instance.collection('Admin');
 
-      if (auth.currentUser == null ||
-          clientData == null ||
-          clientData['id'] == null) {
+      // Validate required data
+      if (auth.currentUser == null) {
+        print('Cannot refresh: User not logged in');
+        return;
+      }
+      
+      if (clientData == null || clientData['id'] == null) {
+        print('Cannot refresh: Invalid client data');
         return;
       }
 
+      final String clientId = clientData['id'];
+      
+      // Fetch the latest client data
       final docSnapshot = await firestore
           .doc(auth.currentUser!.uid)
           .collection('ClientCollection')
-          .doc(clientData['id'])
+          .doc(clientId)
           .get();
 
+      // Update state if document exists and widget is still mounted
       if (docSnapshot.exists && mounted) {
         setState(() {
           clientData = docSnapshot.data();
+          print('Client data refreshed successfully');
         });
+      } else if (!docSnapshot.exists) {
+        print('Client document not found during refresh');
       }
     } catch (e) {
       print('Error refreshing client data: $e');
@@ -1491,47 +1503,56 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
           ),
           ElevatedButton(
             onPressed: () async {
-              try {
-                final newPaidAmount = paidAmountController.text.trim();
+              // Get the new paid amount
+              final newPaidAmount = paidAmountController.text.trim();
 
-                // Validate input
-                if (newPaidAmount.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please enter a valid amount')),
-                  );
-                  return;
-                }
-
-                // Check if it's a valid number
-                if (double.tryParse(newPaidAmount) == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please enter a valid number')),
-                  );
-                  return;
-                }
-
-                Navigator.pop(context); // Close dialog
-
-                // Show loading indicator
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) =>
-                      Center(child: CircularProgressIndicator()),
+              // Validate input
+              if (newPaidAmount.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Please enter a valid amount')),
                 );
+                return;
+              }
 
+              // Check if it's a valid number
+              if (double.tryParse(newPaidAmount) == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Please enter a valid number')),
+                );
+                return;
+              }
+
+              // Close the edit dialog
+              Navigator.pop(context);
+
+              // Create a separate BuildContext variable to track dialog context
+              BuildContext? dialogContext;
+              
+              // Show loading indicator
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) {
+                  dialogContext = context;
+                  return Center(child: CircularProgressIndicator());
+                },
+              );
+
+              try {
                 // Update paid amount
                 final result = await homeProvider.updateClientPaidAmount(
                   clientId: clientId,
                   newPaidAmount: newPaidAmount,
                   totalAmount: totalAmount,
-                ); // Refresh client data if update was successful
+                );
 
-                // Close loading dialog
-                if (context.mounted) Navigator.pop(context);
+                // Close loading dialog if it's still showing
+                if (dialogContext != null && Navigator.canPop(dialogContext!)) {
+                  Navigator.pop(dialogContext!);
+                }
 
                 // Refresh client data if update was successful
-                if (result == 'Success') {
+                if (result == 'Success' && mounted) {
                   await _refreshClientData();
                 }
 
@@ -1551,6 +1572,11 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
                   );
                 }
               } catch (e) {
+                // Close loading dialog if it's still showing
+                if (dialogContext != null && Navigator.canPop(dialogContext!)) {
+                  Navigator.pop(dialogContext!);
+                }
+                
                 // Handle any unexpected errors
                 print('Error in edit dialog: $e');
                 if (context.mounted) {
