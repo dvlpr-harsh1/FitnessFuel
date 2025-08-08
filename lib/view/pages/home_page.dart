@@ -4,10 +4,8 @@ import 'package:fitnessfuel/main.dart';
 import 'package:fitnessfuel/provider/auth_provider.dart';
 import 'package:fitnessfuel/provider/home_provider.dart';
 import 'package:fitnessfuel/responsive/screen_dimention.dart';
-import 'package:fitnessfuel/services/pdf_generation.dart';
 import 'package:fitnessfuel/utils/my_color.dart';
 import 'package:fitnessfuel/view/footer/footer.dart';
-import 'package:fitnessfuel/view/pages/fetched_clients.dart';
 import 'package:fitnessfuel/widgets/anim_image.dart';
 import 'package:fitnessfuel/widgets/custom_button.dart';
 import 'package:fitnessfuel/widgets/custom_dropdown.dart';
@@ -1478,23 +1476,27 @@ class _FetchedClientDetailCard extends StatelessWidget {
               value: client['contact'],
               iconColor: Colors.red[300],
             ),
+            Divider(color: Theme.of(context).dividerColor),
             _infoRowImage(
               asset: 'assets/images/whatsapp.png',
               label: "WhatsApp",
               value: client['whatsapp'],
             ),
+            Divider(color: Theme.of(context).dividerColor),
             _infoRow(
               icon: Icons.calendar_today,
               label: "Plan",
               value: client['planType'],
               iconColor: Colors.blue[300],
             ),
+            Divider(color: Theme.of(context).dividerColor),
             _infoRow(
               icon: Icons.date_range,
               label: "Start",
               value: joined,
               iconColor: Colors.orange[300],
             ),
+            Divider(color: Theme.of(context).dividerColor),
             _infoRow(
               icon: Icons.date_range,
 
@@ -1502,36 +1504,42 @@ class _FetchedClientDetailCard extends StatelessWidget {
               value: end,
               iconColor: Colors.redAccent,
             ),
+            Divider(color: Theme.of(context).dividerColor),
             _infoRow(
               icon: Icons.attach_money,
               label: "Total",
               value: client['totalAmount'],
               iconColor: Colors.teal[400],
             ),
+            Divider(color: Theme.of(context).dividerColor),
             _infoRow(
               icon: Icons.attach_money,
               label: "Paid",
               value: client['paidAmount'],
               iconColor: Colors.teal[400],
             ),
+            Divider(color: Theme.of(context).dividerColor),
             _infoRow(
               icon: Icons.attach_money,
               label: "Remain",
               value: client['remainingAmount'],
               iconColor: Colors.teal[400],
             ),
+            Divider(color: Theme.of(context).dividerColor),
             _infoRow(
               icon: Icons.payment,
               label: "Payment Date",
               value: paymentDate,
               iconColor: Colors.red[300],
             ),
+            Divider(color: Theme.of(context).dividerColor),
             _infoRow(
               icon: Icons.verified,
               label: "Status",
               value: client['paymentStatus'],
               iconColor: Colors.blueGrey[400],
             ),
+            Divider(color: Theme.of(context).dividerColor),
 
             SizedBox(height: 30),
 
@@ -1575,7 +1583,7 @@ class _FetchedClientDetailCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(icon, size: 20, color: iconColor ?? Colors.grey),
           SizedBox(width: 12),
@@ -1600,6 +1608,7 @@ class _FetchedClientDetailCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Image.asset(asset, height: 22, width: 22),
           SizedBox(width: 12),
