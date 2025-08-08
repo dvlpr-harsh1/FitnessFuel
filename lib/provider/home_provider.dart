@@ -19,6 +19,66 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Method to update client's paid amount
+  Future<String> updateClientPaidAmount({
+    required String clientId,
+    required String newPaidAmount,
+    required String totalAmount,
+  }) async {
+    try {
+      // Validate inputs
+      if (clientId.isEmpty) {
+        return 'Invalid client ID';
+      }
+
+      // Validate and parse amounts
+      final double? totalParsed = double.tryParse(totalAmount);
+      final double? paidParsed = double.tryParse(newPaidAmount);
+
+      if (totalParsed == null) {
+        return 'Invalid total amount format';
+      }
+
+      if (paidParsed == null) {
+        return 'Invalid paid amount format';
+      }
+
+      final user = auth.currentUser;
+      if (user == null) {
+        return 'User not found';
+      }
+      final uid = user.uid;
+
+      // Calculate new remaining amount
+      double remaining = totalParsed - paidParsed;
+      if (remaining < 0) remaining = 0;
+      final remainingAmount = remaining
+          .toStringAsFixed(2)
+          .replaceAll(RegExp(r"\.00$"), "");
+
+      // Update payment status based on remaining amount
+      final paymentStatus = remaining <= 0 ? 'Paid' : 'Unpaid';
+
+      // Update the client document
+      await firestore
+          .doc(uid)
+          .collection('ClientCollection')
+          .doc(clientId)
+          .update({
+            'paidAmount': newPaidAmount,
+            'remainingAmount': remainingAmount,
+            'paymentStatus': paymentStatus,
+            'paymentDate': DateTime.now().toIso8601String(),
+          });
+
+      notifyListeners();
+      return 'Success';
+    } catch (e) {
+      print('Error updating paid amount: $e');
+      return 'Error: $e';
+    }
+  }
+
   Future<dynamic> addClient({
     required String name,
     required String birthDate,

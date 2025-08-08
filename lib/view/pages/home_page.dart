@@ -1397,10 +1397,178 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
   }
 }
 
-class _FetchedClientDetailCard extends StatelessWidget {
+class _FetchedClientDetailCard extends StatefulWidget {
   final dynamic client;
   final VoidCallback onBack;
   const _FetchedClientDetailCard({required this.client, required this.onBack});
+
+  @override
+  State<_FetchedClientDetailCard> createState() =>
+      _FetchedClientDetailCardState();
+}
+
+class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
+  late dynamic clientData;
+
+  @override
+  void initState() {
+    super.initState();
+    clientData = widget.client;
+  }
+
+  // Method to refresh client data
+  Future<void> _refreshClientData() async {
+    try {
+      final auth = FirebaseAuth.instance;
+      final firestore = FirebaseFirestore.instance.collection('Admin');
+
+      if (auth.currentUser == null ||
+          clientData == null ||
+          clientData['id'] == null) {
+        return;
+      }
+
+      final docSnapshot = await firestore
+          .doc(auth.currentUser!.uid)
+          .collection('ClientCollection')
+          .doc(clientData['id'])
+          .get();
+
+      if (docSnapshot.exists && mounted) {
+        setState(() {
+          clientData = docSnapshot.data();
+        });
+      }
+    } catch (e) {
+      print('Error refreshing client data: $e');
+    }
+  }
+
+  // Show dialog to edit paid amount
+  void _showEditPaidAmountDialog(BuildContext context, dynamic client) {
+    final TextEditingController paidAmountController = TextEditingController(
+      text: clientData['paidAmount'],
+    );
+    final homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    final totalAmount = clientData['totalAmount'] ?? '0';
+    final clientId = clientData['id'] ?? '';
+
+    // Validate client data
+    if (clientId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Invalid client data'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Edit Paid Amount'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Current paid amount: ${clientData['paidAmount']}'),
+            SizedBox(height: 16),
+            TextField(
+              controller: paidAmountController,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: 'New Paid Amount',
+                border: OutlineInputBorder(),
+                hintText: 'Enter amount (e.g. 1000)',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                final newPaidAmount = paidAmountController.text.trim();
+
+                // Validate input
+                if (newPaidAmount.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please enter a valid amount')),
+                  );
+                  return;
+                }
+
+                // Check if it's a valid number
+                if (double.tryParse(newPaidAmount) == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please enter a valid number')),
+                  );
+                  return;
+                }
+
+                Navigator.pop(context); // Close dialog
+
+                // Show loading indicator
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) =>
+                      Center(child: CircularProgressIndicator()),
+                );
+
+                // Update paid amount
+                final result = await homeProvider.updateClientPaidAmount(
+                  clientId: clientId,
+                  newPaidAmount: newPaidAmount,
+                  totalAmount: totalAmount,
+                ); // Refresh client data if update was successful
+
+                // Close loading dialog
+                if (context.mounted) Navigator.pop(context);
+
+                // Refresh client data if update was successful
+                if (result == 'Success') {
+                  await _refreshClientData();
+                }
+
+                // Show result
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        result == 'Success'
+                            ? 'Paid amount updated successfully'
+                            : 'Failed to update: $result',
+                      ),
+                      backgroundColor: result == 'Success'
+                          ? Colors.green
+                          : Colors.red,
+                    ),
+                  );
+                }
+              } catch (e) {
+                // Handle any unexpected errors
+                print('Error in edit dialog: $e');
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('An unexpected error occurred: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: Text('Update'),
+          ),
+        ],
+      ),
+    );
+  }
 
   String formatDate(dynamic date) {
     try {
@@ -1427,9 +1595,9 @@ class _FetchedClientDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final joined = formatDate(client['startDate']);
-    final end = formatDate(client['endDate']);
-    final paymentDate = formatDate(client['paymentDate']);
+    final joined = formatDate(clientData['startDate']);
+    final end = formatDate(clientData['endDate']);
+    final paymentDate = formatDate(clientData['paymentDate']);
 
     return Card(
       elevation: 0,
@@ -1451,7 +1619,7 @@ class _FetchedClientDetailCard extends StatelessWidget {
                 SizedBox(width: 18),
                 Expanded(
                   child: Text(
-                    client['name'] ?? '',
+                    clientData['name'] ?? '',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 24,
@@ -1473,20 +1641,20 @@ class _FetchedClientDetailCard extends StatelessWidget {
             _infoRow(
               icon: Icons.phone,
               label: "Contact",
-              value: client['contact'],
+              value: clientData['contact'],
               iconColor: Colors.red[300],
             ),
             Divider(color: Theme.of(context).dividerColor),
             _infoRowImage(
               asset: 'assets/images/whatsapp.png',
               label: "WhatsApp",
-              value: client['whatsapp'],
+              value: clientData['whatsapp'],
             ),
             Divider(color: Theme.of(context).dividerColor),
             _infoRow(
               icon: Icons.calendar_today,
               label: "Plan",
-              value: client['planType'],
+              value: clientData['planType'],
               iconColor: Colors.blue[300],
             ),
             Divider(color: Theme.of(context).dividerColor),
@@ -1508,21 +1676,24 @@ class _FetchedClientDetailCard extends StatelessWidget {
             _infoRow(
               icon: Icons.attach_money,
               label: "Total",
-              value: client['totalAmount'],
+              value: clientData['totalAmount'],
               iconColor: Colors.teal[400],
             ),
             Divider(color: Theme.of(context).dividerColor),
-            _infoRow(
+            _infoRowWithEdit(
               icon: Icons.attach_money,
               label: "Paid",
-              value: client['paidAmount'],
+              value: clientData['paidAmount'],
               iconColor: Colors.teal[400],
+              onEdit: () {
+                _showEditPaidAmountDialog(context, clientData);
+              },
             ),
             Divider(color: Theme.of(context).dividerColor),
             _infoRow(
               icon: Icons.attach_money,
               label: "Remain",
-              value: client['remainingAmount'],
+              value: clientData['remainingAmount'],
               iconColor: Colors.teal[400],
             ),
             Divider(color: Theme.of(context).dividerColor),
@@ -1536,7 +1707,7 @@ class _FetchedClientDetailCard extends StatelessWidget {
             _infoRow(
               icon: Icons.verified,
               label: "Status",
-              value: client['paymentStatus'],
+              value: clientData['paymentStatus'],
               iconColor: Colors.blueGrey[400],
             ),
             Divider(color: Theme.of(context).dividerColor),
@@ -1564,7 +1735,7 @@ class _FetchedClientDetailCard extends StatelessWidget {
                 ),
                 icon: Icon(Icons.close, color: Colors.redAccent),
                 label: Text("Close", style: TextStyle(color: Colors.redAccent)),
-                onPressed: onBack,
+                onPressed: widget.onBack,
               ),
             ),
           ],
@@ -1593,6 +1764,42 @@ class _FetchedClientDetailCard extends StatelessWidget {
             value ?? '',
             style: TextStyle(fontWeight: FontWeight.w500),
             overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Info row with Icon + Label + Value + Edit button
+  Widget _infoRowWithEdit({
+    required IconData icon,
+    required String label,
+    required String? value,
+    Color? iconColor,
+    required VoidCallback onEdit,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, size: 20, color: iconColor ?? Colors.grey),
+          SizedBox(width: 12),
+          Text("$label: ", style: TextStyle(fontWeight: FontWeight.w600)),
+          Spacer(),
+          Text(
+            value ?? '',
+            style: TextStyle(fontWeight: FontWeight.w500),
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(width: 8),
+          IconButton(
+            icon: Icon(Icons.edit, size: 18),
+            color: Colors.blue,
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(),
+            splashRadius: 20,
+            onPressed: onEdit,
           ),
         ],
       ),
