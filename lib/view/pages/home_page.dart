@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitnessfuel/main.dart';
+import 'package:fitnessfuel/model/client_model.dart';
 import 'package:fitnessfuel/provider/auth_provider.dart';
 import 'package:fitnessfuel/provider/home_provider.dart';
 import 'package:fitnessfuel/responsive/screen_dimention.dart';
+import 'package:fitnessfuel/services/pdf_generation.dart';
 import 'package:fitnessfuel/utils/my_color.dart';
 import 'package:fitnessfuel/view/footer/footer.dart';
 import 'package:fitnessfuel/widgets/anim_image.dart';
@@ -1427,14 +1429,14 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
         print('Cannot refresh: User not logged in');
         return;
       }
-      
+
       if (clientData == null || clientData['id'] == null) {
         print('Cannot refresh: Invalid client data');
         return;
       }
 
       final String clientId = clientData['id'];
-      
+
       // Fetch the latest client data
       final docSnapshot = await firestore
           .doc(auth.currentUser!.uid)
@@ -1527,7 +1529,7 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
 
               // Create a separate BuildContext variable to track dialog context
               BuildContext? dialogContext;
-              
+
               // Show loading indicator
               showDialog(
                 context: context,
@@ -1576,7 +1578,7 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
                 if (dialogContext != null && Navigator.canPop(dialogContext!)) {
                   Navigator.pop(dialogContext!);
                 }
-                
+
                 // Handle any unexpected errors
                 print('Error in edit dialog: $e');
                 if (context.mounted) {
@@ -1740,29 +1742,60 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
 
             SizedBox(height: 30),
 
-            /// Back Button
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[800],
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                  textStyle: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.1,
+            /// Action Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // PDF Download Button
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal[700],
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    textStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 6,
+                    shadowColor: Colors.teal.withOpacity(0.3),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  icon: Icon(Icons.picture_as_pdf, color: Colors.white),
+                  label: Text(
+                    "Download PDF",
+                    style: TextStyle(color: Colors.white),
                   ),
-                  elevation: 6,
-                  shadowColor: Colors.red.withOpacity(0.18),
+                  onPressed: () => _generateAndDownloadPdf(context),
                 ),
-                icon: Icon(Icons.close, color: Colors.redAccent),
-                label: Text("Close", style: TextStyle(color: Colors.redAccent)),
-                onPressed: widget.onBack,
-              ),
+
+                // Back Button
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[800],
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    textStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 6,
+                    shadowColor: Colors.red.withOpacity(0.18),
+                  ),
+                  icon: Icon(Icons.close, color: Colors.redAccent),
+                  label: Text(
+                    "Close",
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                  onPressed: widget.onBack,
+                ),
+              ],
             ),
           ],
         ),
@@ -1794,6 +1827,90 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
         ],
       ),
     );
+  }
+
+  /// Generate and download PDF for the current client
+  Future<void> _generateAndDownloadPdf(BuildContext context) async {
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext dialogContext) {
+          return AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Generating PDF..."),
+              ],
+            ),
+          );
+        },
+      );
+
+      // Convert client data map to ClientModel
+      final ClientModel clientModel = ClientModel(
+        id: clientData['id'] ?? '',
+        name: clientData['name'] ?? '',
+        contact: clientData['contact'] ?? '',
+        whatsapp: clientData['whatsapp'] ?? '',
+        birthDate: clientData['birthDate'] ?? '',
+        startDate: clientData['startDate'] ?? '',
+        endDate: clientData['endDate'] ?? '',
+        planType: clientData['planType'] ?? '',
+        paidAmount: clientData['paidAmount'] ?? '',
+        remainingAmount: clientData['remainingAmount'] ?? '',
+        totalAmount: clientData['totalAmount'] ?? '',
+        paymentDate: clientData['paymentDate'] ?? '',
+        paymentStatus: clientData['paymentStatus'] ?? '',
+        pdfUrl: clientData['pdfUrl'],
+      );
+
+      // Import the PdfGeneration class
+      final pdfGenerator = PdfGeneration();
+
+      // Generate and download PDF
+      final downloadUrl = await pdfGenerator.generateAndSendReceipt(
+        clientModel,
+      );
+
+      // Close loading dialog
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      // Show success message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("PDF generated and downloaded successfully"),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+
+      // Update client data with new PDF URL if needed
+      if (downloadUrl.isNotEmpty && clientData['pdfUrl'] != downloadUrl) {
+        await _refreshClientData();
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      // Show error message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error generating PDF: ${e.toString()}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      print("Error generating PDF: $e");
+    }
   }
 
   /// Info row with Icon + Label + Value + Edit button
