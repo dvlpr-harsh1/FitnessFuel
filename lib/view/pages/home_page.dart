@@ -1747,29 +1747,30 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // PDF Download Button
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal[700],
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                    textStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.1,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 6,
-                    shadowColor: Colors.teal.withOpacity(0.3),
-                  ),
-                  icon: Icon(Icons.picture_as_pdf, color: Colors.white),
-                  label: Text(
-                    "Download PDF",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () => _generateAndDownloadPdf(context),
-                ),
+                // ElevatedButton.icon(
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: Colors.teal[700],
+                //     foregroundColor: Colors.white,
+                //     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                //     textStyle: TextStyle(
+                //       fontSize: 16,
+                //       fontWeight: FontWeight.bold,
+                //       letterSpacing: 1.1,
+                //     ),
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(12),
+                //     ),
+                //     elevation: 6,
+                //     shadowColor: Colors.teal.withOpacity(0.3),
+                //   ),
+                //   icon: Icon(Icons.picture_as_pdf, color: Colors.white),
+                //   label: Text(
+                //     "Download PDF",
+                //     style: TextStyle(color: Colors.white),
+                //   ),
+                //   onPressed: () => _generateAndDownloadPdf(context),
+                // ),
+                Spacer(),
 
                 // Back Button
                 ElevatedButton.icon(
@@ -1893,6 +1894,7 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
       // Update client data with new PDF URL if needed
       if (downloadUrl.isNotEmpty && clientData['pdfUrl'] != downloadUrl) {
         await _refreshClientData();
+        _generateAndDownloadPdf(context);
       }
     } catch (e) {
       // Close loading dialog
