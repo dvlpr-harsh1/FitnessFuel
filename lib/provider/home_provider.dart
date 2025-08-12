@@ -73,6 +73,40 @@ class HomeProvider extends ChangeNotifier {
 
       // Add a small delay to ensure Firestore has time to update
       await Future.delayed(Duration(milliseconds: 300));
+
+      // Fetch the updated client data to pass to PDF generation
+      final updatedClientDoc = await firestore
+          .doc(uid)
+          .collection('ClientCollection')
+          .doc(clientId)
+          .get();
+
+      if (updatedClientDoc.exists) {
+        final updatedClientData = updatedClientDoc.data();
+        final ClientModel clientModel = ClientModel(
+          id: updatedClientData?['id'] ?? '',
+          name: updatedClientData?['name'] ?? '',
+          contact: updatedClientData?['contact'] ?? '',
+          whatsapp: updatedClientData?['whatsapp'] ?? '',
+          birthDate: updatedClientData?['birthDate'] ?? '',
+          startDate: updatedClientData?['startDate'] ?? '',
+          endDate: updatedClientData?['endDate'] ?? '',
+          planType: updatedClientData?['planType'] ?? '',
+          paidAmount: updatedClientData?['paidAmount'] ?? '',
+          remainingAmount: updatedClientData?['remainingAmount'] ?? '',
+          totalAmount: updatedClientData?['totalAmount'] ?? '',
+          paymentDate: updatedClientData?['paymentDate'] ?? '',
+          paymentStatus: updatedClientData?['paymentStatus'] ?? '',
+          pdfUrl: updatedClientData?['pdfUrl'],
+        );
+
+        // Generate and send receipt PDF
+        final pdfGenerator = PdfGeneration();
+        await pdfGenerator.generateAndSendReceipt(clientModel);
+        print('PDF generated automatically after update.');
+      } else {
+        print('Updated client document not found for PDF generation.');
+      }
       
       notifyListeners();
       return 'Success';

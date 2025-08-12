@@ -1770,7 +1770,6 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
                 //   ),
                 //   onPressed: () => _generateAndDownloadPdf(context),
                 // ),
-                Spacer(),
 
                 // Back Button
                 ElevatedButton.icon(
@@ -1894,7 +1893,6 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
       // Update client data with new PDF URL if needed
       if (downloadUrl.isNotEmpty && clientData['pdfUrl'] != downloadUrl) {
         await _refreshClientData();
-        _generateAndDownloadPdf(context);
       }
     } catch (e) {
       // Close loading dialog
