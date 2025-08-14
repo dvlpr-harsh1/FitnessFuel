@@ -53,8 +53,4 @@ Instagram: [@haus.of.harsh](https://instagram.com/haus.of.harsh)
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License.  
-Feel free to use and improve it!
 
