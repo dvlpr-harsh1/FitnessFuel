@@ -48,7 +48,7 @@ class _ClientsState extends State<Clients> {
                     Icons.close,
                     color: Theme.of(context).iconTheme.color,
                   ),
-                  onPressed: widget.onClose,
+                  onPressed: widget.onClose ?? () {}, // <-- Fix here
                 ),
               ],
             ),

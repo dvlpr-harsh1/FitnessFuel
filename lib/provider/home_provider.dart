@@ -107,7 +107,7 @@ class HomeProvider extends ChangeNotifier {
       } else {
         print('Updated client document not found for PDF generation.');
       }
-      
+
       notifyListeners();
       return 'Success';
     } catch (e) {
@@ -198,6 +198,57 @@ class HomeProvider extends ChangeNotifier {
     } catch (e) {
       print('$e');
       return '$e';
+    }
+  }
+
+  /// Update multiple fields and auto-download PDF
+  Future<String> updateClientMultipleFields({
+    required String clientId,
+    required Map<String, dynamic> updates,
+  }) async {
+    try {
+      final user = auth.currentUser;
+      if (user == null) return 'User not logged in';
+      final uid = user.uid;
+
+      await firestore
+          .doc(uid)
+          .collection('ClientCollection')
+          .doc(clientId)
+          .update(updates);
+
+      // Fetch updated client data
+      final updatedClientDoc = await firestore
+          .doc(uid)
+          .collection('ClientCollection')
+          .doc(clientId)
+          .get();
+
+      if (updatedClientDoc.exists) {
+        final updatedClientData = updatedClientDoc.data();
+        final ClientModel clientModel = ClientModel(
+          id: updatedClientData?['id'] ?? '',
+          name: updatedClientData?['name'] ?? '',
+          contact: updatedClientData?['contact'] ?? '',
+          whatsapp: updatedClientData?['whatsapp'] ?? '',
+          birthDate: updatedClientData?['birthDate'] ?? '',
+          startDate: updatedClientData?['startDate'] ?? '',
+          endDate: updatedClientData?['endDate'] ?? '',
+          planType: updatedClientData?['planType'] ?? '',
+          paidAmount: updatedClientData?['paidAmount'] ?? '',
+          remainingAmount: updatedClientData?['remainingAmount'] ?? '',
+          totalAmount: updatedClientData?['totalAmount'] ?? '',
+          paymentDate: updatedClientData?['paymentDate'] ?? '',
+          paymentStatus: updatedClientData?['paymentStatus'] ?? '',
+          pdfUrl: updatedClientData?['pdfUrl'],
+        );
+        final pdfGenerator = PdfGeneration();
+        await pdfGenerator.generateAndSendReceipt(clientModel);
+      }
+      notifyListeners();
+      return 'Success';
+    } catch (e) {
+      return e.toString();
     }
   }
 }

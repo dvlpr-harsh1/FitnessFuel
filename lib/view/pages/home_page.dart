@@ -1411,6 +1411,7 @@ class _FetchedClientDetailCard extends StatefulWidget {
 
 class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
   late dynamic clientData;
+  bool _isUpdating = false;
 
   @override
   void initState() {
@@ -1430,31 +1431,30 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
         return;
       }
 
-      if (clientData == null || clientData['id'] == null) {
+      if (clientData == null ||
+          clientData['id'] == null ||
+          clientData['id'].toString().isEmpty) {
         print('Cannot refresh: Invalid client data');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: Invalid client ID'),
+            backgroundColor: Colors.red,
+          ),
+        );
         return;
       }
 
       final String clientId = clientData['id'];
 
       // Fetch the latest client data
-      final docSnapshot = await firestore
-          .doc(auth.currentUser!.uid)
-          .collection('ClientCollection')
-          .doc(clientId)
-          .get();
-
-      // Update state if document exists and widget is still mounted
-      if (docSnapshot.exists && mounted) {
-        setState(() {
-          clientData = docSnapshot.data();
-          print('Client data refreshed successfully');
-        });
-      } else if (!docSnapshot.exists) {
-        print('Client document not found during refresh');
-      }
     } catch (e) {
       print('Error refreshing client data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error refreshing client data'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -1598,6 +1598,116 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
     );
   }
 
+  // Dialog to edit multiple fields at once
+  void _showEditDetailsDialog(BuildContext context) {
+    final contactController = TextEditingController(
+      text: clientData['contact'] ?? '',
+    );
+    final whatsappController = TextEditingController(
+      text: clientData['whatsapp'] ?? '',
+    );
+    final totalController = TextEditingController(
+      text: clientData['totalAmount'] ?? '',
+    );
+    final remainController = TextEditingController(
+      text: clientData['remainingAmount'] ?? '',
+    );
+
+    final homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    final clientId = clientData['id'] ?? '';
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Edit Details'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: contactController,
+                decoration: InputDecoration(labelText: 'Contact'),
+                keyboardType: TextInputType.phone,
+              ),
+              SizedBox(height: 12),
+              TextField(
+                controller: whatsappController,
+                decoration: InputDecoration(labelText: 'WhatsApp'),
+                keyboardType: TextInputType.phone,
+              ),
+              SizedBox(height: 12),
+              TextField(
+                controller: totalController,
+                decoration: InputDecoration(labelText: 'Total Amount'),
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 12),
+              TextField(
+                controller: remainController,
+                decoration: InputDecoration(labelText: 'Remaining Amount'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            child: Text('Update'),
+            onPressed: _isUpdating
+                ? null
+                : () async {
+                    setState(() => _isUpdating = true);
+                    Navigator.pop(
+                      context,
+                    ); // Ensure dialog is closed before update
+                    try {
+                      final contact = contactController.text.trim();
+                      final whatsapp = whatsappController.text.trim();
+                      final totalAmount = totalController.text.trim();
+                      final remainingAmount = remainController.text.trim();
+
+                      await homeProvider.updateClientMultipleFields(
+                        clientId: clientId,
+                        updates: {
+                          'contact': contact,
+                          'whatsapp': whatsapp,
+                          'totalAmount': totalAmount,
+                          'remainingAmount': remainingAmount,
+                        },
+                      );
+
+                      await _refreshClientData();
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Details updated successfully'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    } finally {
+                      if (mounted) setState(() => _isUpdating = false);
+                    }
+                  },
+          ),
+        ],
+      ),
+    );
+  }
+
   String formatDate(dynamic date) {
     try {
       if (date is DateTime) {
@@ -1623,183 +1733,214 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
 
   @override
   Widget build(BuildContext context) {
+    // Prevent build if clientData is null
+    if (clientData == null || clientData['id'] == null) {
+      return Center(child: CircularProgressIndicator());
+    }
+
     final joined = formatDate(clientData['startDate']);
     final end = formatDate(clientData['endDate']);
     final paymentDate = formatDate(clientData['paymentDate']);
 
-    return Card(
-      elevation: 0,
-      color: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      child: Padding(
-        padding: const EdgeInsets.all(22),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// Header
-            Row(
+    return Stack(
+      children: [
+        Card(
+          elevation: 0,
+          color: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Colors.red[100],
-                  child: Icon(Icons.person, color: Colors.red[700], size: 32),
-                ),
-                SizedBox(width: 18),
-                Expanded(
-                  child: Text(
-                    clientData['name'] ?? '',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                      color: Colors.white70,
-                      letterSpacing: 1.1,
+                /// Header
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Colors.red[100],
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.red[700],
+                        size: 32,
+                      ),
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                    SizedBox(width: 18),
+                    Expanded(
+                      child: Text(
+                        clientData['name'] ?? '',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                          color: Colors.white70,
+                          letterSpacing: 1.1,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 18),
+                Divider(thickness: 1.2, color: Colors.grey[200]),
+                SizedBox(height: 18),
+
+                /// Contact Info
+                _infoRow(
+                  icon: Icons.phone,
+                  label: "Contact",
+                  value: clientData['contact'],
+                  iconColor: Colors.red[300],
+                ),
+                Divider(color: Theme.of(context).dividerColor),
+                _infoRow(
+                  icon: Icons.image,
+                  label: "WhatsApp",
+                  value: clientData['whatsapp'],
+                  iconColor: Colors.green[400],
+                ),
+                Divider(color: Theme.of(context).dividerColor),
+                _infoRow(
+                  icon: Icons.attach_money,
+                  label: "Total",
+                  value: clientData['totalAmount'],
+                  iconColor: Colors.teal[400],
+                ),
+                Divider(color: Theme.of(context).dividerColor),
+                _infoRow(
+                  icon: Icons.attach_money,
+                  label: "Remain",
+                  value: clientData['remainingAmount'],
+                  iconColor: Colors.teal[400],
+                ),
+                Divider(color: Theme.of(context).dividerColor),
+                _infoRow(
+                  icon: Icons.calendar_today,
+                  label: "Plan",
+                  value: clientData['planType'],
+                  iconColor: Colors.blue[300],
+                ),
+                Divider(color: Theme.of(context).dividerColor),
+                _infoRow(
+                  icon: Icons.date_range,
+                  label: "Start",
+                  value: joined,
+                  iconColor: Colors.orange[300],
+                ),
+                Divider(color: Theme.of(context).dividerColor),
+                _infoRow(
+                  icon: Icons.date_range,
+                  label: "End",
+                  value: end,
+                  iconColor: Colors.redAccent,
+                ),
+                Divider(color: Theme.of(context).dividerColor),
+                _infoRow(
+                  icon: Icons.payment,
+                  label: "Payment Date",
+                  value: paymentDate,
+                  iconColor: Colors.red[300],
+                ),
+                Divider(color: Theme.of(context).dividerColor),
+                _infoRow(
+                  icon: Icons.verified,
+                  label: "Status",
+                  value: clientData['paymentStatus'],
+                  iconColor: Colors.blueGrey[400],
+                ),
+                Divider(color: Theme.of(context).dividerColor),
+                SizedBox(height: 30),
+
+                /// Single Edit Button
+                Center(
+                  child: ElevatedButton.icon(
+                    icon: Icon(Icons.edit),
+                    label: Text("Edit"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 28),
+                      textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: _isUpdating ? null : () => _showEditDetailsDialog(context),
                   ),
+                ),
+
+                SizedBox(height: 30),
+                // ...existing action buttons...
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // PDF Download Button
+                    // ElevatedButton.icon(
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: Colors.teal[700],
+                    //     foregroundColor: Colors.white,
+                    //     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    //     textStyle: TextStyle(
+                    //       fontSize: 16,
+                    //       fontWeight: FontWeight.bold,
+                    //       letterSpacing: 1.1,
+                    //     ),
+                    //     shape: RoundedRectangleBorder(
+                    //       borderRadius: BorderRadius.circular(12),
+                    //     ),
+                    //     elevation: 6,
+                    //     shadowColor: Colors.teal.withOpacity(0.3),
+                    //   ),
+                    //   icon: Icon(Icons.picture_as_pdf, color: Colors.white),
+                    //   label: Text(
+                    //     "Download PDF",
+                    //     style: TextStyle(color: Colors.white),
+                    //   ),
+                    //   onPressed: () => _generateAndDownloadPdf(context),
+                    // ),
+
+                    // Back Button
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[800],
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 24,
+                        ),
+                        textStyle: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.1,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 6,
+                        shadowColor: Colors.red.withOpacity(0.18),
+                      ),
+                      icon: Icon(Icons.close, color: Colors.redAccent),
+                      label: Text(
+                        "Close",
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
+                      onPressed: widget.onBack,
+                    ),
+                  ],
                 ),
               ],
             ),
-
-            SizedBox(height: 18),
-            Divider(thickness: 1.2, color: Colors.grey[200]),
-            SizedBox(height: 18),
-
-            /// Contact Info
-            _infoRow(
-              icon: Icons.phone,
-              label: "Contact",
-              value: clientData['contact'],
-              iconColor: Colors.red[300],
-            ),
-            Divider(color: Theme.of(context).dividerColor),
-            _infoRowImage(
-              asset: 'assets/images/whatsapp.png',
-              label: "WhatsApp",
-              value: clientData['whatsapp'],
-            ),
-            Divider(color: Theme.of(context).dividerColor),
-            _infoRow(
-              icon: Icons.calendar_today,
-              label: "Plan",
-              value: clientData['planType'],
-              iconColor: Colors.blue[300],
-            ),
-            Divider(color: Theme.of(context).dividerColor),
-            _infoRow(
-              icon: Icons.date_range,
-              label: "Start",
-              value: joined,
-              iconColor: Colors.orange[300],
-            ),
-            Divider(color: Theme.of(context).dividerColor),
-            _infoRow(
-              icon: Icons.date_range,
-
-              label: "End",
-              value: end,
-              iconColor: Colors.redAccent,
-            ),
-            Divider(color: Theme.of(context).dividerColor),
-            _infoRow(
-              icon: Icons.attach_money,
-              label: "Total",
-              value: clientData['totalAmount'],
-              iconColor: Colors.teal[400],
-            ),
-            Divider(color: Theme.of(context).dividerColor),
-            _infoRowWithEdit(
-              icon: Icons.attach_money,
-              label: "Paid",
-              value: clientData['paidAmount'],
-              iconColor: Colors.teal[400],
-              onEdit: () {
-                _showEditPaidAmountDialog(context, clientData);
-              },
-            ),
-            Divider(color: Theme.of(context).dividerColor),
-            _infoRow(
-              icon: Icons.attach_money,
-              label: "Remain",
-              value: clientData['remainingAmount'],
-              iconColor: Colors.teal[400],
-            ),
-            Divider(color: Theme.of(context).dividerColor),
-            _infoRow(
-              icon: Icons.payment,
-              label: "Payment Date",
-              value: paymentDate,
-              iconColor: Colors.red[300],
-            ),
-            Divider(color: Theme.of(context).dividerColor),
-            _infoRow(
-              icon: Icons.verified,
-              label: "Status",
-              value: clientData['paymentStatus'],
-              iconColor: Colors.blueGrey[400],
-            ),
-            Divider(color: Theme.of(context).dividerColor),
-
-            SizedBox(height: 30),
-
-            /// Action Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // PDF Download Button
-                // ElevatedButton.icon(
-                //   style: ElevatedButton.styleFrom(
-                //     backgroundColor: Colors.teal[700],
-                //     foregroundColor: Colors.white,
-                //     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                //     textStyle: TextStyle(
-                //       fontSize: 16,
-                //       fontWeight: FontWeight.bold,
-                //       letterSpacing: 1.1,
-                //     ),
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(12),
-                //     ),
-                //     elevation: 6,
-                //     shadowColor: Colors.teal.withOpacity(0.3),
-                //   ),
-                //   icon: Icon(Icons.picture_as_pdf, color: Colors.white),
-                //   label: Text(
-                //     "Download PDF",
-                //     style: TextStyle(color: Colors.white),
-                //   ),
-                //   onPressed: () => _generateAndDownloadPdf(context),
-                // ),
-
-                // Back Button
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[800],
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                    textStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.1,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 6,
-                    shadowColor: Colors.red.withOpacity(0.18),
-                  ),
-                  icon: Icon(Icons.close, color: Colors.redAccent),
-                  label: Text(
-                    "Close",
-                    style: TextStyle(color: Colors.redAccent),
-                  ),
-                  onPressed: widget.onBack,
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
-      ),
+        if (_isUpdating)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.08),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ),
+      ],
     );
   }
 
@@ -1829,97 +1970,13 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
     );
   }
 
-  /// Generate and download PDF for the current client
-  Future<void> _generateAndDownloadPdf(BuildContext context) async {
-    try {
-      // Show loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext dialogContext) {
-          return AlertDialog(
-            content: Row(
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 20),
-                Text("Generating PDF..."),
-              ],
-            ),
-          );
-        },
-      );
-
-      // Convert client data map to ClientModel
-      final ClientModel clientModel = ClientModel(
-        id: clientData['id'] ?? '',
-        name: clientData['name'] ?? '',
-        contact: clientData['contact'] ?? '',
-        whatsapp: clientData['whatsapp'] ?? '',
-        birthDate: clientData['birthDate'] ?? '',
-        startDate: clientData['startDate'] ?? '',
-        endDate: clientData['endDate'] ?? '',
-        planType: clientData['planType'] ?? '',
-        paidAmount: clientData['paidAmount'] ?? '',
-        remainingAmount: clientData['remainingAmount'] ?? '',
-        totalAmount: clientData['totalAmount'] ?? '',
-        paymentDate: clientData['paymentDate'] ?? '',
-        paymentStatus: clientData['paymentStatus'] ?? '',
-        pdfUrl: clientData['pdfUrl'],
-      );
-
-      // Import the PdfGeneration class
-      final pdfGenerator = PdfGeneration();
-
-      // Generate and download PDF
-      final downloadUrl = await pdfGenerator.generateAndSendReceipt(
-        clientModel,
-      );
-
-      // Close loading dialog
-      if (context.mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
-
-      // Show success message
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("PDF generated and downloaded successfully"),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-
-      // Update client data with new PDF URL if needed
-      if (downloadUrl.isNotEmpty && clientData['pdfUrl'] != downloadUrl) {
-        await _refreshClientData();
-      }
-    } catch (e) {
-      // Close loading dialog
-      if (context.mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
-
-      // Show error message
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error generating PDF: ${e.toString()}"),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      print("Error generating PDF: $e");
-    }
-  }
-
   /// Info row with Icon + Label + Value + Edit button
   Widget _infoRowWithEdit({
     required IconData icon,
     required String label,
     required String? value,
     Color? iconColor,
-    required VoidCallback onEdit,
+    required VoidCallback? onEdit, // <-- Change to nullable
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
@@ -1942,7 +1999,7 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
             padding: EdgeInsets.zero,
             constraints: BoxConstraints(),
             splashRadius: 20,
-            onPressed: onEdit,
+            onPressed: onEdit, // <-- Now accepts null
           ),
         ],
       ),
@@ -2016,7 +2073,7 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
   //                     TextSpan(
   //                       text: "$secondLabel: ",
   //                       style: TextStyle(fontWeight: FontWeight.w600),
-  //                     ),
+  //                     },
   //                     TextSpan(
   //                       text: secondValue ?? '',
   //                       style: TextStyle(fontWeight: FontWeight.w500),

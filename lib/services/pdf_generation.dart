@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/widgets.dart' as pw;
+import 'package:google_fonts/google_fonts.dart' as google_fonts;
 // Only for Flutter Web
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
@@ -15,6 +16,11 @@ class PdfGeneration {
   /// Generates PDF, uploads to Firebase Storage, returns downloadUrl, and triggers download (web)
   Future<String> generateAndSendReceipt(ClientModel client) async {
     final pdf = pw.Document();
+
+    // Use GoogleFonts NotoSans for Unicode support
+    final notoFont = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'),
+    );
 
     // Format date and time professionally
     String formatDateTime(String isoOrSlashDate) {
@@ -55,254 +61,304 @@ class PdfGeneration {
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         build: (context) {
-          return pw.Stack(
+          // Fix: Use pw.ListView for scrollable PDF content, not SingleChildScrollView
+          return pw.ListView(
             children: [
-              // 🔴 Watermark (diagonal)
-              pw.Positioned.fill(
-                child: pw.Transform.rotate(
-                  angle: 0.7, // Diagonal
-                  child: pw.Opacity(
-                    opacity: 0.07,
-                    child: pw.Center(
-                      child: pw.Text(
-                        '  FITNESSFUEL',
-                        style: pw.TextStyle(
-                          fontSize: 70,
-                          fontWeight: pw.FontWeight.bold,
-                          color: PdfColors.redAccent,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // 🔲 Main Content
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
+              pw.Stack(
                 children: [
-                  // 🖼️ Logo
-                  pw.Center(child: pw.Image(logoImage, height: 80)),
-                  pw.SizedBox(height: 8),
-
-                  // 🏢 Centered Gym Info
-                  pw.Center(
-                    child: pw.Column(
-                      children: [
-                        pw.Text(
-                          'FITNESSFUEL GYM',
-                          style: pw.TextStyle(
-                            fontSize: 18,
-                            fontWeight: pw.FontWeight.bold,
+                  // 🔴 Watermark (diagonal)
+                  pw.Positioned.fill(
+                    child: pw.Transform.rotate(
+                      angle: 0.7, // Diagonal
+                      child: pw.Opacity(
+                        opacity: 0.07,
+                        child: pw.Center(
+                          child: pw.Text(
+                            '  FITNESSFUEL',
+                            style: pw.TextStyle(
+                              fontSize: 70,
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.redAccent,
+                              font: notoFont,
+                            ),
                           ),
                         ),
-                        pw.SizedBox(height: 10),
-                        pw.Text(
-                          'Datta Shree Apartment, Near ABB Circle, Mahatma Nagar, Nashik',
-                          style: pw.TextStyle(fontSize: 10),
-                          textAlign: pw.TextAlign.center,
-                        ),
-                        pw.SizedBox(height: 6),
-                        pw.Text(
-                          'Phone: +91 9130601261   |   Email: fitnessfuel@gmail.com',
-                          style: pw.TextStyle(fontSize: 10),
-                        ),
-                      ],
-                    ),
-                  ),
-                  pw.SizedBox(height: 16),
-                  pw.Divider(thickness: 1),
-                  pw.SizedBox(height: 16),
-
-                  // 📄 Receipt Title
-                  pw.Center(
-                    child: pw.Text(
-                      'RECEIPT',
-                      style: pw.TextStyle(
-                        fontSize: 14,
-                        fontWeight: pw.FontWeight.bold,
                       ),
                     ),
                   ),
 
-                  pw.SizedBox(height: 20),
-
-                  // 👤 Client Info
-                  pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  // 🔲 Main Content
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Text(
-                            'Client:  ${client.name}',
-                            style: pw.TextStyle(fontSize: 10),
-                          ),
-                          pw.Text(
-                            'Contact: ${client.contact}',
-                            style: pw.TextStyle(fontSize: 10),
-                          ),
-                          pw.Text(
-                            'Plan:    ${client.planType}',
-                            style: pw.TextStyle(fontSize: 10),
-                          ),
-                        ],
-                      ),
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.end,
-                        children: [
-                          pw.Text(
-                            'Date: ${formatDateTime(client.paymentDate)}',
-                            style: pw.TextStyle(fontSize: 10),
-                          ),
-                          pw.Text(
-                            'Status: ${client.paymentStatus}',
-                            style: pw.TextStyle(fontSize: 10),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                      // 🖼️ Logo
+                      pw.Center(child: pw.Image(logoImage, height: 80)),
+                      pw.SizedBox(height: 8),
 
-                  pw.SizedBox(height: 18),
-
-                  // 📊 Membership Table (no vertical borders)
-                  pw.Table(
-                    border: pw.TableBorder(
-                      top: pw.BorderSide(width: 0.5),
-                      bottom: pw.BorderSide(width: 0.5),
-                      horizontalInside: pw.BorderSide(width: 0.2),
-                    ),
-                    defaultVerticalAlignment:
-                        pw.TableCellVerticalAlignment.middle,
-                    children: [
-                      pw.TableRow(
-                        decoration: pw.BoxDecoration(color: PdfColors.grey300),
-                        children: [
-                          for (var h in [
-                            'Start Date',
-                            'End Date',
-                            'Total\nAmount',
-                            'Paid\nAmount',
-                            'Unpaid\nAmount',
-                          ])
-                            pw.Padding(
-                              padding: const pw.EdgeInsets.all(6),
-                              child: pw.Text(
-                                h,
-                                style: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold,
-                                  fontSize: 10,
-                                ),
+                      // 🏢 Centered Gym Info
+                      pw.Center(
+                        child: pw.Column(
+                          children: [
+                            pw.Text(
+                              'FITNESSFUEL GYM',
+                              style: pw.TextStyle(
+                                fontSize: 18,
+                                fontWeight: pw.FontWeight.bold,
+                                font: notoFont,
                               ),
                             ),
+                            pw.SizedBox(height: 10),
+                            pw.Text(
+                              'Datta Shree Apartment, Near ABB Circle, Mahatma Nagar, Nashik',
+                              style: pw.TextStyle(fontSize: 10, font: notoFont),
+                              textAlign: pw.TextAlign.center,
+                            ),
+                            pw.SizedBox(height: 6),
+                            pw.Text(
+                              'Phone: +91 9130601261   |   Email: fitnessfuel@gmail.com',
+                              style: pw.TextStyle(fontSize: 10, font: notoFont),
+                            ),
+                          ],
+                        ),
+                      ),
+                      pw.SizedBox(height: 16),
+                      pw.Divider(
+                        thickness: 1,
+                        color: PdfColors.grey, // optional
+                        indent: 0,
+                        endIndent: 0,
+                      ),
+                      pw.SizedBox(height: 16),
+
+                      // 📄 Receipt Title
+                      pw.Center(
+                        child: pw.Text(
+                          'RECEIPT',
+                          style: pw.TextStyle(
+                            fontSize: 14,
+                            fontWeight: pw.FontWeight.bold,
+                            font: notoFont,
+                          ),
+                        ),
+                      ),
+
+                      pw.SizedBox(height: 20),
+
+                      // 👤 Client Info
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        children: [
+                          pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text(
+                                'Client:  ${client.name}',
+                                style: pw.TextStyle(
+                                  fontSize: 10,
+                                  font: notoFont,
+                                ),
+                              ),
+                              pw.Text(
+                                'Contact: ${client.contact}',
+                                style: pw.TextStyle(
+                                  fontSize: 10,
+                                  font: notoFont,
+                                ),
+                              ),
+                              pw.Text(
+                                'Plan:    ${client.planType}',
+                                style: pw.TextStyle(
+                                  fontSize: 10,
+                                  font: notoFont,
+                                ),
+                              ),
+                            ],
+                          ),
+                          pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.end,
+                            children: [
+                              pw.Text(
+                                'Date: ${formatDateTime(client.paymentDate)}',
+                                style: pw.TextStyle(
+                                  fontSize: 10,
+                                  font: notoFont,
+                                ),
+                              ),
+                              pw.Text(
+                                'Status: ${client.paymentStatus}',
+                                style: pw.TextStyle(
+                                  fontSize: 10,
+                                  font: notoFont,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                      pw.TableRow(
+
+                      pw.SizedBox(height: 18),
+
+                      // 📊 Membership Table (no vertical borders)
+                      pw.Table(
+                        border: pw.TableBorder(
+                          top: pw.BorderSide(width: 0.5),
+                          bottom: pw.BorderSide(width: 0.5),
+                          horizontalInside: pw.BorderSide(width: 0.2),
+                        ),
+                        defaultVerticalAlignment:
+                            pw.TableCellVerticalAlignment.middle,
                         children: [
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(6),
-                            child: pw.Text(
-                              formatDateTime(client.startDate),
-                              style: pw.TextStyle(fontSize: 10),
+                          pw.TableRow(
+                            decoration: pw.BoxDecoration(
+                              color: PdfColors.grey300,
                             ),
+                            children: [
+                              for (var h in [
+                                'Start Date',
+                                'End Date',
+                                'Total\nAmount',
+                                'Paid\nAmount',
+                                'Unpaid\nAmount',
+                              ])
+                                pw.Padding(
+                                  padding: const pw.EdgeInsets.all(6),
+                                  child: pw.Text(
+                                    h,
+                                    style: pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold,
+                                      fontSize: 10,
+                                      font: notoFont,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(6),
-                            child: pw.Text(
-                              formatDateTime(client.endDate),
-                              style: pw.TextStyle(fontSize: 10),
-                            ),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(6),
-                            child: pw.Text(
-                              client.totalAmount,
-                              style: pw.TextStyle(fontSize: 10),
-                            ),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(6),
-                            child: pw.Text(
-                              client.paidAmount,
-                              style: pw.TextStyle(fontSize: 10),
-                            ),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(6),
-                            child: pw.Text(
-                              client.remainingAmount,
-                              style: pw.TextStyle(fontSize: 10),
-                            ),
+                          pw.TableRow(
+                            children: [
+                              pw.Padding(
+                                padding: const pw.EdgeInsets.all(6),
+                                child: pw.Text(
+                                  formatDateTime(client.startDate),
+                                  style: pw.TextStyle(
+                                    fontSize: 10,
+                                    font: notoFont,
+                                  ),
+                                ),
+                              ),
+                              pw.Padding(
+                                padding: const pw.EdgeInsets.all(6),
+                                child: pw.Text(
+                                  formatDateTime(client.endDate),
+                                  style: pw.TextStyle(
+                                    fontSize: 10,
+                                    font: notoFont,
+                                  ),
+                                ),
+                              ),
+                              pw.Padding(
+                                padding: const pw.EdgeInsets.all(6),
+                                child: pw.Text(
+                                  client.totalAmount,
+                                  style: pw.TextStyle(
+                                    fontSize: 10,
+                                    font: notoFont,
+                                  ),
+                                ),
+                              ),
+                              pw.Padding(
+                                padding: const pw.EdgeInsets.all(6),
+                                child: pw.Text(
+                                  client.paidAmount,
+                                  style: pw.TextStyle(
+                                    fontSize: 10,
+                                    font: notoFont,
+                                  ),
+                                ),
+                              ),
+                              pw.Padding(
+                                padding: const pw.EdgeInsets.all(6),
+                                child: pw.Text(
+                                  client.remainingAmount,
+                                  style: pw.TextStyle(
+                                    fontSize: 10,
+                                    font: notoFont,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
+                      ),
+
+                      pw.SizedBox(height: 18),
+
+                      // 💵 Summary Box
+                      pw.Align(
+                        alignment: pw.Alignment.centerRight,
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text(
+                              'Total Amount:  ${client.totalAmount}',
+                              style: pw.TextStyle(fontSize: 10, font: notoFont),
+                            ),
+                            pw.Text(
+                              'Paid Amount:   ${client.paidAmount}',
+                              style: pw.TextStyle(fontSize: 10, font: notoFont),
+                            ),
+                            pw.Text(
+                              'Unpaid Amount: ${client.remainingAmount}',
+                              style: pw.TextStyle(fontSize: 10, font: notoFont),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      pw.SizedBox(height: 24),
+
+                      // 📌 Terms
+                      pw.Text(
+                        'Terms & Conditions:',
+                        style: pw.TextStyle(
+                          fontWeight: pw.FontWeight.bold,
+                          fontSize: 10,
+                          font: notoFont,
+                        ),
+                      ),
+                      pw.SizedBox(height: 4),
+                      pw.Bullet(
+                        text: 'Membership rates may be revised at any time.',
+                        style: pw.TextStyle(fontSize: 10, font: notoFont),
+                      ),
+                      pw.Bullet(
+                        text: 'Fees once paid are non-refundable.',
+                        style: pw.TextStyle(fontSize: 10, font: notoFont),
+                      ),
+                      pw.Bullet(
+                        text:
+                            'Memberships are non-transferable and cannot be exchanged\nwith other individuals under any circumstance.',
+                        style: pw.TextStyle(fontSize: 10, font: notoFont),
+                      ),
+
+                      pw.SizedBox(height: 30),
+
+                      // 🖋️ Signature
+                      pw.Align(
+                        alignment: pw.Alignment.centerRight,
+                        child: pw.Column(
+                          children: [
+                            pw.Text(
+                              '_________________________',
+                              style: pw.TextStyle(font: notoFont),
+                            ),
+                            pw.Text(
+                              'Authorized Signature',
+                              style: pw.TextStyle(fontSize: 10, font: notoFont),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
-                  ),
-
-                  pw.SizedBox(height: 18),
-
-                  // 💵 Summary Box
-                  pw.Align(
-                    alignment: pw.Alignment.centerRight,
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text(
-                          'Total Amount:  ${client.totalAmount}',
-                          style: pw.TextStyle(fontSize: 10),
-                        ),
-                        pw.Text(
-                          'Paid Amount:   ${client.paidAmount}',
-                          style: pw.TextStyle(fontSize: 10),
-                        ),
-                        pw.Text(
-                          'Unpaid Amount: ${client.remainingAmount}',
-                          style: pw.TextStyle(fontSize: 10),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  pw.SizedBox(height: 24),
-
-                  // 📌 Terms
-                  pw.Text(
-                    'Terms & Conditions:',
-                    style: pw.TextStyle(
-                      fontWeight: pw.FontWeight.bold,
-                      fontSize: 10,
-                    ),
-                  ),
-                  pw.SizedBox(height: 4),
-                  pw.Bullet(
-                    text: 'Membership rates may be revised at any time.',
-                    style: pw.TextStyle(fontSize: 10),
-                  ),
-                  pw.Bullet(
-                    text: 'Fees once paid are non-refundable.',
-                    style: pw.TextStyle(fontSize: 10),
-                  ),
-                  pw.Bullet(
-                    text:
-                        'Memberships are non-transferable and cannot be exchanged\nwith other individuals under any circumstance.',
-                    style: pw.TextStyle(fontSize: 10),
-                  ),
-
-                  pw.SizedBox(height: 30),
-
-                  // 🖋️ Signature
-                  pw.Align(
-                    alignment: pw.Alignment.centerRight,
-                    child: pw.Column(
-                      children: [
-                        pw.Text('_________________________'),
-                        pw.Text(
-                          'Authorized Signature',
-                          style: pw.TextStyle(fontSize: 10),
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               ),
@@ -319,26 +375,32 @@ class PdfGeneration {
     final safeName = client.name.replaceAll(RegExp(r'[^\w\s]+'), '');
     final fileName = 'Receipt_${safeName}_${client.id}.pdf';
     final ref = FirebaseStorage.instance.ref().child('clientPdf/$fileName');
-    final uploadTask = await ref.putData(bytes);
-    final downloadUrl = await uploadTask.ref.getDownloadURL();
+    try {
+      final uploadTask = await ref.putData(bytes);
+      final downloadUrl = await uploadTask.ref.getDownloadURL();
 
-    // 4️⃣ Download PDF for user (Web only)
-    if (kIsWeb) {
-      try {
-        final blob = html.Blob([bytes], 'application/pdf');
-        final url = html.Url.createObjectUrlFromBlob(blob);
-        final anchor = html.AnchorElement(href: url)
-          ..setAttribute('download', fileName)
-          ..click();
-        Future.delayed(Duration(seconds: 1), () {
-          html.Url.revokeObjectUrl(url);
-        });
-      } catch (e) {
-        print('PDF download failed: $e');
+      // 4️⃣ Download PDF for user (Web only)
+      if (kIsWeb) {
+        try {
+          final blob = html.Blob([bytes], 'application/pdf');
+          final url = html.Url.createObjectUrlFromBlob(blob);
+          final anchor = html.AnchorElement(href: url)
+            ..setAttribute('download', fileName)
+            ..click();
+          Future.delayed(Duration(seconds: 1), () {
+            html.Url.revokeObjectUrl(url);
+          });
+        } catch (e) {
+          print('PDF download failed: $e');
+        }
       }
-    }
 
-    return downloadUrl;
+      return downloadUrl;
+    } catch (e) {
+      print('PDF upload or downloadUrl error: $e');
+      // Optionally show a snackbar or error dialog in your UI
+      return '';
+    }
   }
 }
 //     $downloadUrl
