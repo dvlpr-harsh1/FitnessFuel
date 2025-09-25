@@ -1,4 +1,4 @@
-# FitnessFuel – Manage your clients
+# FitnessFuel \
 
 FitnessFuel is a Flutter-based web application built to manage gym clients efficiently.  
 It allows gym owners to add client data, auto-generate PDF receipts, upload them to Firebase Storage.
