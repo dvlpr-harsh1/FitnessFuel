@@ -1419,6 +1419,17 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
     clientData = widget.client;
   }
 
+  @override
+  void didUpdateWidget(covariant _FetchedClientDetailCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // When a different client is selected from the list, update local data
+    if (oldWidget.client != widget.client && widget.client != null) {
+      setState(() {
+        clientData = widget.client;
+      });
+    }
+  }
+
   // Method to refresh client data
   Future<void> _refreshClientData() async {
     try {
