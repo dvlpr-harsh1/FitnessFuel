@@ -1,0 +1,23 @@
+Subject: [PATCH] remove spaces
+---
+Index: lib/main.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/main.dart b/lib/main.dart
+--- a/lib/main.dart	(revision 63da450b76ebcc98e3b8619f6479932edc8d073a)
++++ b/lib/main.dart	(date 1759556805725)
+@@ -21,12 +21,9 @@
+     ),
+   );
+ }
+-
+ late Size mq;
+-
+ class MyApp extends StatelessWidget {
+   const MyApp({super.key});
+-
+   @override
+   Widget build(BuildContext context) {
+     mq = MediaQuery.of(context).size;

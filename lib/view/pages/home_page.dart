@@ -1315,7 +1315,7 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
                                       border: Border.all(
                                         color: Theme.of(context).dividerColor,
                                       ),
-                                    ),
+                                    ), 
                                     child: ListTile(
                                       leading: CircleAvatar(
                                         backgroundColor: Colors.red.shade100,
