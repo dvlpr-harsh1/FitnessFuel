@@ -3,7 +3,7 @@
 echo "📦 Building Flutter Web..."
 flutter build web
 
-echo "📁 Moving build to docs/"
+echo "Moving build to docs/"
 rm -rf docs
 mv build/web docs
 
