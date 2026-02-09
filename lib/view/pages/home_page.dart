@@ -1315,7 +1315,7 @@ class _SearchClientBottomSheetState extends State<_SearchClientBottomSheet> {
                                       border: Border.all(
                                         color: Theme.of(context).dividerColor,
                                       ),
-                                    ), 
+                                    ),
                                     child: ListTile(
                                       leading: CircleAvatar(
                                         backgroundColor: Colors.red.shade100,
@@ -1873,11 +1873,21 @@ class _FetchedClientDetailCardState extends State<_FetchedClientDetailCard> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
                       foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 28),
-                      textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 28,
+                      ),
+                      textStyle: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                    onPressed: _isUpdating ? null : () => _showEditDetailsDialog(context),
+                    onPressed: _isUpdating
+                        ? null
+                        : () => _showEditDetailsDialog(context),
                   ),
                 ),
 

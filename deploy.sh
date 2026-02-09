@@ -9,7 +9,7 @@ mv build/web docs
 
 echo "📝 Committing changes..."
 git add .
-git commit -m "🚀 Deploy update: Flutter Web rebuild"
+git commit -m "Deploy update: Flutter Web rebuild"
 
 echo "🔄 Pulling remote changes (safe rebase)..."
 git pull origin main --rebase
